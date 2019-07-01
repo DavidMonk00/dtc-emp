@@ -14,11 +14,9 @@ package dtc_config is
 --constant dtcId: integer := dtcId;
 constant maxModId: natural := 49;
 
-constant latency: natural := 87;
-
-constant routeBlocks: natural := 4;
+constant routeBlocks: natural := 2;
 constant routeStubs: natural := routeBlocks * TMPtfp;
-constant routeNodeInputs: natural := CICsPerDTC / routeBlocks;
+constant routeNodeInputs: natural := modulesPerDTC / routeBlocks;
 constant numCICstubs: natural := 35;
 constant widthCICstubs: natural := width( numCICstubs );
 
@@ -32,20 +30,20 @@ constant oLinks: naturals( numLinksDTC - 1 downto 0 ) := ( 094,095,096,097,098,0
 function iLinkMapping( l: ldata ) return ldata;
 function oLinkMapping( l: ldata ) return ldata;
 
-constant widthRowB: natural := 5;
+constant widthRowB: natural := 4;
 constant widthRowC: natural := 4;
 
 type t_ramA is array ( 0 to 2 **   widthCol                   - 1 ) of std_logic_vector( widthZ                                                 - 1 downto 0 );
 type t_ramB is array ( 0 to 2 ** ( widthCol  + widthRowB    ) - 1 ) of std_logic_vector( widthR + widthPhiDTC + widthSectorEta + widthSectorEta - 1 downto 0 );
 type t_ramC is array ( 0 to 2 ** ( widthRowC + widthBendCIC ) - 1 ) of std_logic_vector( widthMBin + widthMBin + numOverlap                     - 1 downto 0 );
 
-function init_A( modId, cicId: natural ) return t_ramA;
-function init_B( modId, cicId: natural ) return t_ramB;
-function init_C( modId, cicId: natural ) return t_ramC;
+function init_A( id: natural ) return t_ramA;
+function init_B( id: natural ) return t_ramB;
+function init_C( id: natural ) return t_ramC;
 
-impure function init_ramA( modId, cicId: natural ) return t_ramA;
-impure function init_ramB( modId, cicId: natural ) return t_ramB;
-impure function init_ramC( modId, cicId: natural ) return t_ramC;
+impure function init_ramA( id: natural ) return t_ramA;
+impure function init_ramB( id: natural ) return t_ramB;
+impure function init_ramC( id: natural ) return t_ramC;
 
 type t_layers is array ( 0 to modulesPerDTC - 1 ) of std_logic_vector( widthLayer - 1 downto 0 );
 impure function init_layers return t_layers;
@@ -76,12 +74,12 @@ begin
     return r;
 end function;
 
-function init_A( modId, cicId: natural ) return t_ramA is begin if modId > maxModId then return ( others => ( others => '0' ) ); end if; return init_ramA( modId, cicId ); end function;
-function init_B( modId, cicId: natural ) return t_ramB is begin if modId > maxModId then return ( others => ( others => '0' ) ); end if; return init_ramB( modId, cicId ); end function;
-function init_C( modId, cicId: natural ) return t_ramC is begin if modId > maxModId then return ( others => ( others => '0' ) ); end if; return init_ramC( modId, cicId ); end function;
+function init_A( id: natural ) return t_ramA is begin if id > maxModId then return ( others => ( others => '0' ) ); end if; return init_ramA( id ); end function;
+function init_B( id: natural ) return t_ramB is begin if id > maxModId then return ( others => ( others => '0' ) ); end if; return init_ramB( id ); end function;
+function init_C( id: natural ) return t_ramC is begin if id > maxModId then return ( others => ( others => '0' ) ); end if; return init_ramC( id ); end function;
 
-impure function init_ramA( modId, cicId: natural ) return t_ramA is
-    file f: text open read_mode is "/scratch/tschuh/work/src/dtc/firmware/cfg/luts/dtc_" & natural'image( dtcId ) & "/mod_" & natural'image( modId ) & "/a_" & natural'image( cicId ) & ".txt";
+impure function init_ramA( id: natural ) return t_ramA is
+    file f: text open read_mode is "/scratch/tschuh/work/src/dtc/firmware/cfg/luts/dtc_" & natural'image( dtcId ) & "/mod_" & natural'image( id ) & "/a.txt";
     variable l: line;
     variable w: bit_vector( widthZ - 1 downto 0 );
     variable ram: t_ramA := ( others => ( others => '0' ) );
@@ -94,8 +92,8 @@ begin
     return ram;
 end function;
 
-impure function init_ramB( modId, cicId: natural ) return t_ramB is
-    file f: text open read_mode is "/scratch/tschuh/work/src/dtc/firmware/cfg/luts/dtc_" & natural'image( dtcId ) & "/mod_" & natural'image( modId ) & "/b_" & natural'image( cicId ) & ".txt";
+impure function init_ramB( id: natural ) return t_ramB is
+    file f: text open read_mode is "/scratch/tschuh/work/src/dtc/firmware/cfg/luts/dtc_" & natural'image( dtcId ) & "/mod_" & natural'image( id ) & "/b.txt";
     variable l: line;
     variable w: bit_vector( widthR + widthPhiDTC + widthSectorEta + widthSectorEta - 1 downto 0 );
     variable ram: t_ramB := ( others => ( others => '0' ) );
@@ -108,8 +106,8 @@ begin
     return ram;
 end function;
 
-impure function init_ramC( modId, cicId: natural ) return t_ramC is
-    file f: text open read_mode is "/scratch/tschuh/work/src/dtc/firmware/cfg/luts/dtc_" & natural'image( dtcId ) & "/mod_" & natural'image( modId ) & "/c_" & natural'image( cicId ) & ".txt";
+impure function init_ramC( id: natural ) return t_ramC is
+    file f: text open read_mode is "/scratch/tschuh/work/src/dtc/firmware/cfg/luts/dtc_" & natural'image( dtcId ) & "/mod_" & natural'image( id ) & "/c.txt";
     variable l: line;
     variable w: bit_vector( widthMBin + widthMBin + numOverlap - 1 downto 0 );
     variable ram: t_ramC := ( others => ( others => '0' ) );

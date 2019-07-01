@@ -6,9 +6,9 @@ use work.dtc_stubs.all;
 entity dtc_transform is
 port (
     clk: in std_logic;
-    transform_ipbus: in t_ipbuss( CICsPerDTC - 1 downto 0 );
-    transform_din: in t_stubsCIC( CICsPerDTC - 1 downto 0 );
-    transform_dout: out t_stubsTransform( CICsPerDTC - 1 downto 0 )
+    transform_ipbus: in t_ipbuss( modulesPerDTC - 1 downto 0 );
+    transform_din: in t_stubsFE( modulesPerDTC - 1 downto 0 );
+    transform_dout: out t_stubsTransform( modulesPerDTC - 1 downto 0 )
 );
 end;
 
@@ -22,17 +22,17 @@ generic (
 port (
     clk: in std_logic;
     node_ipbus: in t_ipbus;
-    node_din: in t_stubCIC;
+    node_din: in t_stubFE;
     node_dout: out t_stubTransform
 );
 end component;
 
 begin
 
-g: for k in CICsPerDTC - 1 downto 0 generate
+g: for k in modulesPerDTC - 1 downto 0 generate
 
 signal node_ipbus: t_ipbus := nullBus;
-signal node_din: t_stubCIC := nullStub;
+signal node_din: t_stubFE := nullStub;
 signal node_dout: t_stubTransform := nullStub;
 
 begin
@@ -63,7 +63,7 @@ generic (
 port (
     clk: in std_logic;
     node_ipbus: in t_ipbus;
-    node_din: in t_stubCIC;
+    node_din: in t_stubFE;
     node_dout: out t_stubTransform
 );
 attribute ram_style: string;
@@ -74,21 +74,18 @@ end;
 
 architecture rtl of dtc_transform_node is
 
-constant modId: natural := id  /  numCIC;
-constant cicId: natural := id mod numCIC;
-
 -- step 1
 
-signal layer: std_logic_vector( widthLayer - 1 downto 0 ) := layers( dtcId );
+signal layer: std_logic_vector( widthLayer - 1 downto 0 ) := layers( id );
 signal ipbus: t_ipbus := nullBus;
-signal din: t_stubCIC := nullStub;
+signal din: t_stubFE := nullStub;
 signal valid, reset: std_logic := '0';
 signal bx: std_logic_vector( widthBX - 1 downto 0 ) := ( others => '0' );
 attribute keep of ipbus: signal is "true";
 
-signal ramA: t_ramA := init_A( modId, cicId );
-signal ramB: t_ramB := init_B( modId, cicId );
-signal ramC: t_ramC := init_C( modId, cicId );
+signal ramA: t_ramA := init_A( id );
+signal ramB: t_ramB := init_B( id );
+signal ramC: t_ramC := init_C( id );
 signal addrA: std_logic_vector( widthCol - 1 downto 0 ) := ( others => '0' );
 signal addrB: std_logic_vector( widthCol + widthRowB - 1 downto 0 ) := ( others => '0' );
 signal addrC: std_logic_vector( widthRowC + widthBendCIC - 1 downto 0 ) := ( others => '0' );

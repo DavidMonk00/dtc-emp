@@ -25,7 +25,7 @@ end record;
 type t_ipbuss is array ( natural range <> ) of t_ipbus;
 function nullBus return t_ipbus;
 
-constant widthStubCIC: natural := widthBendCIC + widthCol + widthRow + widthBX + 1;
+constant widthStubCIC: natural := widthBendCIC + widthColCIC + widthRow + widthBX + 1;
 constant gap         : natural := LWORD_WIDTH / numCIC - widthStubCIC;
 
 type t_stubCIC is
@@ -34,13 +34,24 @@ record
     valid: std_logic;
     bx:    std_logic_vector( widthBX      - 1 downto 0 );
     row:   std_logic_vector( widthRow     - 1 downto 0 );
-    col:   std_logic_vector( widthCol     - 1 downto 0 );
+    col:   std_logic_vector( widthColCIC  - 1 downto 0 );
     bend:  std_logic_vector( widthBendCIC - 1 downto 0 );
 end record;
 type t_stubsCIC is array ( natural range <> ) of t_stubCIC;
 function nullStub return t_stubCIC;
 function conv( l: lword ) return t_stubsCIC;
 
+type t_stubFE is
+record
+    reset: std_logic;
+    valid: std_logic;
+    bx:    std_logic_vector( widthBX   - 1 downto 0 );
+    row:   std_logic_vector( widthRow  - 1 downto 0 );
+    col:   std_logic_vector( widthCol  - 1 downto 0 );
+    bend:  std_logic_vector( widthBend - 1 downto 0 );
+end record;
+type t_stubsFE is array ( natural range <> ) of t_stubFE;
+function nullStub return t_stubFE;
 
 type t_stubTransform is
 record
@@ -108,6 +119,7 @@ package body dtc_stubs is
 function nullBus return t_ipbus is begin return ( '0', '0', '0', '0', others => ( others => '0' ) ); end function;
 
 function nullStub return t_stubCIC       is begin return ( '0', '0', others => ( others => '0' ) ); end function;
+function nullStub return t_stubFE        is begin return ( '0', '0', others => ( others => '0' ) ); end function;
 function nullStub return t_stubTransform is begin return ( '0', '0', others => ( others => '0' ) ); end function;
 function nullStub return t_stubRoute     is begin return ( '0', '0', others => ( others => '0' ) ); end function;
 function nullStub return t_stubDTC       is begin return ( '0', '0', others => ( others => '0' ) ); end function;
@@ -116,11 +128,11 @@ function conv( l: lword ) return t_stubsCIC is
     variable r: t_stubsCIC( numCIC - 1 downto 0 ) := ( others => nullStub );
 begin
     for k in numCIC - 1 downto 0 loop
-        r( k ).bend  := l.data( widthBend + widthCol + widthRow + widthBX + 1 + k * LWORD_WIDTH / numCIC - 1 downto widthCol + widthRow + widthBX + 1 + k * LWORD_WIDTH / numCIC );
-        r( k ).col   := l.data(             widthCol + widthRow + widthBX + 1 + k * LWORD_WIDTH / numCIC - 1 downto            widthRow + widthBX + 1 + k * LWORD_WIDTH / numCIC );
-        r( k ).row   := l.data(                        widthRow + widthBX + 1 + k * LWORD_WIDTH / numCIC - 1 downto                       widthBX + 1 + k * LWORD_WIDTH / numCIC );
-        r( k ).bx    := l.data(                                   widthBX + 1 + k * LWORD_WIDTH / numCIC - 1 downto                                 1 + k * LWORD_WIDTH / numCIC );
-        r( k ).valid := l.data(                                             1 + k * LWORD_WIDTH / numCIC - 1 );
+        r( k ).bend  := l.data( widthBend + widthColCIC + widthRow + widthBX + 1 + k * LWORD_WIDTH / numCIC - 1 downto widthColCIC + widthRow + widthBX + 1 + k * LWORD_WIDTH / numCIC );
+        r( k ).col   := l.data(             widthColCIC + widthRow + widthBX + 1 + k * LWORD_WIDTH / numCIC - 1 downto               widthRow + widthBX + 1 + k * LWORD_WIDTH / numCIC );
+        r( k ).row   := l.data(                           widthRow + widthBX + 1 + k * LWORD_WIDTH / numCIC - 1 downto                          widthBX + 1 + k * LWORD_WIDTH / numCIC );
+        r( k ).bx    := l.data(                                      widthBX + 1 + k * LWORD_WIDTH / numCIC - 1 downto                                    1 + k * LWORD_WIDTH / numCIC );
+        r( k ).valid := l.data(                                                1 + k * LWORD_WIDTH / numCIC - 1 );   
     end loop;
     return r;
 end function;

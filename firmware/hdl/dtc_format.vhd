@@ -8,7 +8,7 @@ entity dtc_formatInput is
 port (
     clk: in std_logic;
     formatInput_din: in ldata( modulesPerDTC - 1 downto 0 );
-    formatInput_dout: out t_stubsCIC( CICsPerDTC - 1 downto 0 )
+    formatInput_dout: out t_stubsFE( ModulesPerDTC - 1 downto 0 )
 );
 end;
 
@@ -18,7 +18,7 @@ component dtc_formatInput_node
 port (
     clk: in std_logic;
     node_din: in lword;
-    node_dout: out t_stubsCIC( numCIC - 1 downto 0 )
+    node_dout: out t_stubFE
 );
 end component;
 
@@ -27,12 +27,12 @@ begin
 g: for k in modulesPerDTC - 1 downto 0 generate
 
 signal node_din: lword := ( ( others => '0' ), '0', '0', '1' );
-signal node_dout: t_stubsCIC( numCIC - 1 downto 0 ) := ( others => nullStub );
+signal node_dout: t_stubFE := nullStub;
 
 begin
 
 node_din <= formatInput_din( k );
-formatInput_dout( ( k + 1 ) * numCIC - 1 downto k * numCIC ) <= node_dout;
+formatInput_dout( k ) <= node_dout;
 
 c: dtc_formatInput_node port map ( clk, node_din, node_dout );
 
@@ -44,42 +44,86 @@ end;
 library ieee;
 use ieee.std_logic_1164.all;
 use work.emp_data_types.all;
+use work.tools.all;
 use work.config.all;
 use work.dtc_stubs.all;
+use work.dtc_config.all;
 
 entity dtc_formatInput_node is
 port (
     clk: in std_logic;
     node_din: in lword;
-    node_dout: out t_stubsCIC( numCIC - 1 downto 0 )
+    node_dout: out t_stubFE
 );
+attribute ram_style: string;
 end;
 
 architecture rtl of dtc_formatInput_node is
 
-signal stub, dout, convStub: t_stubsCIC( numCIC - 1 downto 0 ) := ( others => nullStub );
+constant widthRam: natural := widthBendCIC + widthColCIC + widthRow + widthBX;
+type t_ram is array ( 2 ** widthCICstubs - 1 downto 0 ) of std_logic_vector( widthRam - 1 downto 0 );
+signal ram: t_ram := ( others => ( others => '0' ) );
+signal waddr, raddr: std_logic_vector( widthCICstubs - 1 downto 0 ) := ( others => '0' );
+
+signal cicStubs: t_stubsCIC( numCIC - 1 downto 0 ) := ( others => nullStub );
+signal stub, dout: t_stubFE := nullStub;
 signal valid: std_logic := '0';
+signal empty: std_logic := '1';
+
+function lconv( s: t_stubCIC ) return std_logic_vector is
+begin
+    return  s.bx & s.row & s.col & s.bend;
+end function;
+
+function lconv( s: std_logic_vector ) return t_stubFE is
+    variable stub: t_stubFE := nullStub;
+    variable col, offset: std_logic_vector( widthColCIC - 1 downto 0 ) := stds( 2 ** width( widthColCIC ), widthColCIC );
+begin
+    stub.bx   := s( widthBX + widthRow + widthColCIC + widthBendCIC - 1 downto widthRow + widthColCIC + widthBendCIC );
+    stub.row  := s(           widthRow + widthColCIC + widthBendCIC - 1 downto            widthColCIC + widthBendCIC );
+         col  := s(                      widthColCIC + widthBendCIC - 1 downto                          widthBendCIC );
+    stub.bend := s(                                    widthBendCIC - 1 downto                                     0 );
+    stub.col  := col - offset;
+    return stub;
+end function;
+function lconv( s: t_stubCIC ) return t_stubFE is begin return ( s.reset, s.valid, s.bx, s.row, s.col + stds( 2 ** width( widthColCIC ), widthColCIC ), s.bend ); end function;
 
 begin
 
 node_dout <= dout;
-convStub <= conv( node_din );
+
+stub <= lconv( ram( uint( raddr ) ) );
 
 process( clk ) is
 begin
 if rising_edge( clk ) then
 
     valid <= node_din.valid;
-    stub <= convStub;
+    cicStubs <= conv( node_din );
 
-    dout <= ( others => nullStub );
-    if valid = '1' then
+    dout <= nullStub;
+    if cicStubs( 0 ).valid = '1' then
+        dout <= lconv( cicStubs( 0 ) );
+    elsif empty = '0' then
         dout <= stub;
-    elsif node_din.valid = '1' then
-        for k in numCIC - 1 downto 0 loop
-            dout( k ).reset <= '1';
-            dout( k ).bx( widthBX - 1 downto widthTMPfe ) <= convStub( k ).bx( widthBX - 1 downto widthTMPfe );
-        end loop;
+        dout.valid <= '1';
+        raddr <= incr( raddr );
+        if incr( raddr ) = waddr then
+            empty <= '1';
+        end if;
+    end if;
+    ram( uint( waddr ) ) <= lconv( cicStubs( 1 ) );
+    if node_din.valid = '1' and cicStubs( 1 ).valid = '1' then
+        empty <= '0';
+        waddr <= incr( waddr );
+    end if;
+    if valid = '0' and node_din.valid = '1' then
+        dout <= nullStub;
+        dout.reset <= '1';
+        dout.bx( widthBX - 1 downto widthTMPfe ) <= node_din.data( widthBX + 1 - 1 downto widthTMPfe + 1 );
+        empty <= '1';
+        waddr <= ( others => '0' );
+        raddr <= ( others => '0' );
     end if;
 
 end if;
@@ -150,7 +194,7 @@ end;
 
 architecture rtl of dtc_formatOutput_node is
 
-signal sr: t_stubsDTC( 9 - 1 downto 0 ) := ( others => nullStub );
+signal sr: t_stubsDTC( 3 - 1 downto 0 ) := ( others => nullStub );
 signal stub: t_stubDTC := nullStub;
 
 signal reset: std_logic := '0';

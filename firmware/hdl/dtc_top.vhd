@@ -20,35 +20,35 @@ architecture rtl of dtc_top is
 
 
 signal formatInput_din: ldata( modulesPerDTC - 1 downto 0 ) := ( others => ( ( others => '0' ), '0', '0', '1' ) );
-signal formatInput_dout: t_stubsCIC( CICsPerDTC - 1 downto 0 ) := ( others => nullStub );
+signal formatInput_dout: t_stubsFE( ModulesPerDTC - 1 downto 0 ) := ( others => nullStub );
 component dtc_formatInput
 port (
     clk: in std_logic;
     formatInput_din: in ldata( modulesPerDTC - 1 downto 0 );
-    formatInput_dout: out t_stubsCIC( CICsPerDTC - 1 downto 0 )
+    formatInput_dout: out t_stubsFE( ModulesPerDTC - 1 downto 0 )
 );
 end component;
 
 
-signal transform_ipbus: t_ipbuss( CICsPerDTC - 1 downto 0 ) := ( others => nullBus );
-signal transform_din: t_stubsCIC( CICsPerDTC - 1 downto 0 ) := ( others => nullStub );
-signal transform_dout: t_stubsTransform( CICsPerDTC - 1 downto 0 ) := ( others => nullStub );
+signal transform_ipbus: t_ipbuss( ModulesPerDTC - 1 downto 0 ) := ( others => nullBus );
+signal transform_din: t_stubsFE( ModulesPerDTC - 1 downto 0 ) := ( others => nullStub );
+signal transform_dout: t_stubsTransform( ModulesPerDTC - 1 downto 0 ) := ( others => nullStub );
 component dtc_transform
 port (
     clk: in std_logic;
-    transform_ipbus: in t_ipbuss( CICsPerDTC - 1 downto 0 );
-    transform_din: in t_stubsCIC( CICsPerDTC - 1 downto 0 );
-    transform_dout: out t_stubsTransform( CICsPerDTC - 1 downto 0 )
+    transform_ipbus: in t_ipbuss( ModulesPerDTC - 1 downto 0 );
+    transform_din: in t_stubsFE( ModulesPerDTC - 1 downto 0 );
+    transform_dout: out t_stubsTransform( ModulesPerDTC - 1 downto 0 )
 );
 end component;
 
 
-signal route_din: t_stubsTransform( CICsPerDTC - 1 downto 0 ) := ( others => nullStub );
+signal route_din: t_stubsTransform( ModulesPerDTC - 1 downto 0 ) := ( others => nullStub );
 signal route_dout: t_stubsRoute( routeStubs - 1 downto 0 ) := ( others => nullStub );
 component dtc_route
 port (
     clk: in std_logic;
-    route_din: in t_stubsTransform( CICsPerDTC - 1 downto 0 );
+    route_din: in t_stubsTransform( ModulesPerDTC - 1 downto 0 );
     route_dout: out t_stubsRoute( routeStubs - 1 downto 0 )
 );
 end component;

@@ -21,8 +21,8 @@ package emp_project_decl is
   constant LB_ADDR_WIDTH      : integer             := 10;
 
   -- Clock setup
-  constant CLOCK_COMMON_RATIO : integer             := 24;
-  constant CLOCK_RATIO        : integer             := 8;
+  constant CLOCK_COMMON_RATIO : integer             := 36;
+  constant CLOCK_RATIO        : integer             := 9;
   constant CLOCK_AUX_RATIO    : clock_ratio_array_t := (2, 4, 6);
 
   -- Only used by nullalgo

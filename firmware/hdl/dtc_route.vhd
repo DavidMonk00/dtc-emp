@@ -7,7 +7,7 @@ use work.dtc_config.all;
 entity dtc_route is
 port (
     clk: in std_logic;
-    route_din: in t_stubsTransform( CICsPerDTC - 1 downto 0 );
+    route_din: in t_stubsTransform( ModulesPerDTC - 1 downto 0 );
     route_dout: out t_stubsRoute( routeStubs - 1 downto 0 )
 );
 end;
@@ -149,7 +149,7 @@ begin
 node_din <= desync_din( k );
 desync_dout( k ) <= node_dout;
 
-c: dtc_route_desync_node generic map ( routeNodeInputs - k ) port map ( clk, node_din, node_dout );
+c: dtc_route_desync_node generic map ( routeNodeInputs - k - 1 ) port map ( clk, node_din, node_dout );
 
 end generate;
 
