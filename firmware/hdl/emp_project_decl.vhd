@@ -57,7 +57,7 @@ package emp_project_decl is
     24 => (no_mgt, no_chk, no_buf, no_fmt, buf   , no_chk, no_mgt, -1, -1),
     25 => (no_mgt, no_chk, no_buf, no_fmt, buf   , no_chk, no_mgt, -1, -1),
     26 => (no_mgt, no_chk, no_buf, no_fmt, buf   , no_chk, no_mgt, -1, -1),
-    27 => (no_mgt, no_chk, no_buf, no_fmt, buf   , no_chk, no_mgt, -1, -1),
+    27 => (no_mgt, no_chk, no_buf, no_fmt, no_buf, no_chk, no_mgt, -1, -1),
     ---- Cross-chip
     others => kDummyRegion
     );

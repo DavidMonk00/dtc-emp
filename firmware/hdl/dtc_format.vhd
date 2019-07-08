@@ -189,30 +189,25 @@ port (
     node_din: in t_stubDTC;
     node_dout: out lword
 );
-attribute shreg_extract: string;
 end;
 
 architecture rtl of dtc_formatOutput_node is
 
-signal sr: t_stubsDTC( 3 - 1 downto 0 ) := ( others => nullStub );
-signal stub: t_stubDTC := nullStub;
+signal din: t_stubDTC := nullStub;
+signal dout: lword := ( ( others => '0' ), '0', '0', '1' );
 
 signal reset: std_logic := '0';
 signal counter: std_logic_vector( widthStubs - 1 downto 0 ) := ( others => '0' );
-signal dout: lword := ( ( others => '0' ), '0', '0', '1' );
 
-attribute shreg_extract of sr: signal is "no";
 
 begin
 
 node_dout <= dout;
-stub <= sr( sr'high );
+din <= node_din;
 
 process ( clk ) is
 begin
 if rising_edge( clk ) then
-
-    sr <= sr( sr'high - 1 downto 0 ) & node_din;
 
     if dout.valid = '1' then
         counter <= incr( counter );
@@ -221,10 +216,10 @@ if rising_edge( clk ) then
         end if;
     end if;
 
-    reset <= stub.reset;
+    reset <= din.reset;
     dout.data <= ( others => '0' );
-    if stub.valid = '1' then
-        dout.data <= conv( stub );
+    if din.valid = '1' then
+        dout.data <= conv( din );
     end if;
     if reset = '1' then
         dout.valid <= '1';

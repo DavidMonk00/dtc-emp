@@ -93,7 +93,9 @@ begin
 
 desync_din <= block_din;
 
-reset_din <= block_din( routeNodeInputs - 1 );
+process( clk ) is begin if rising_edge( clk ) then
+    reset_din <= block_din( routeNodeInputs - 1 );
+end if; end process;
 
 array_din <= desync_dout;
 array_reset <= reset_dout;
@@ -149,7 +151,7 @@ begin
 node_din <= desync_din( k );
 desync_dout( k ) <= node_dout;
 
-c: dtc_route_desync_node generic map ( routeNodeInputs - k - 1 ) port map ( clk, node_din, node_dout );
+c: dtc_route_desync_node generic map ( routeNodeInputs - k ) port map ( clk, node_din, node_dout );
 
 end generate;
 
@@ -158,6 +160,7 @@ end;
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.config.all;
 use work.tools.all;
 use work.dtc_stubs.all;
@@ -213,7 +216,7 @@ end function;
 begin
 
 node_dout <= lconv( reg );
-raddr <= stdu( uint( waddr ) - latency, widthStubs );
+waddr <= std_logic_vector( unsigned( raddr ) + latency );
 
 process( clk ) is
 begin
@@ -222,7 +225,7 @@ if rising_edge( clk ) then
     ram( uint( waddr ) ) <= lconv( node_din );
     regOptional <= ram( uint( raddr ) );
     reg <= regOptional;
-    waddr <= incr( waddr );
+    raddr <= incr( raddr );
 
 end if;
 end process;
@@ -343,9 +346,9 @@ if rising_edge( clk ) then
     sr <= sr( sr'high - 1 downto 0 ) & tin;
     counterClks <= incr( counterClks );
     rout.reset <= '0';
-    if uint( counterClks ) = numStubs - 1 then
-        counterTFPtmps <= incr( counterTFPtmps );
+    if uint( counterClks ) = numStubs - 1 and uint( counterTFPtmps ) < tfpPackets - 1 then
         counterClks <= ( others => '0' );
+        counterTFPtmps <= incr( counterTFPtmps );
         rout.bx <= stdu( times( uint( incr( counterTFPtmps ) ) ), widthBX );
         rout.reset <= '1';
     end if;
@@ -547,6 +550,7 @@ if rising_edge( clk ) then
         raddr <= ( others => '0' );
         laddr <= waddr;
     end if;
+    rout.bx <= rin.bx;
 
     if tin.valid = '1'then
         if bxCheck( tin.bx ) then

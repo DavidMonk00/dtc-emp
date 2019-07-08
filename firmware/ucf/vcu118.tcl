@@ -2,15 +2,15 @@ delete_pblocks quad_R0
 delete_pblocks quad_L0
 add_cells_to_pblock payload [get_cells payload]
 
-set nSLICE 60
+#set nSLICE 60
 
 for { set y 5 } { $y < 15 } { incr y } {
-    delete_pblocks p$y
     create_pblock p$y -parent payload
-    set y0 [expr $y * $nSLICE]
-    set y1 [expr ($y + 1) * $nSLICE - 1]
-    resize_pblock p$y -add SLICE_X15Y${y0}:SLICE_X153Y${y1}
-    set_property gridtypes {URAM288 RAMB36 RAMB18 DSP48E2 SLICE} [get_pblocks p${y}]
+    #set y0 [expr $y * $nSLICE]
+    #set y1 [expr ($y + 1) * $nSLICE - 1]
+    #resize_pblock p$y -add SLICE_X15Y${y0}:SLICE_X153Y${y1}
+    #set_property gridtypes {URAM288 RAMB36 RAMB18 DSP48E2 SLICE} [get_pblocks p${y}]
+    resize_pblock p$y -add CLOCKREGION_X2Y${y}:CLOCKREGION_X3Y${y}
 }
 
 for { set s 0 } { $s < 2 } { incr s } {
@@ -19,7 +19,6 @@ for { set s 0 } { $s < 2 } { incr s } {
             set y [expr 6 + ${q}]
             set i [expr 4 * ${q} + ${l}]
             set k [expr 36 * ${s} + ${i}]
-            add_cells_to_pblock p${y} [get_cells payload/DTC/cI/g[$k].c]
             add_cells_to_pblock p${y} [get_cells payload/DTC/cT/g[$k].c]
             add_cells_to_pblock p${y} [get_cells payload/DTC/cR/g[$s].c/cD/g[$i].c]
             add_cells_to_pblock p${y} [get_cells payload/DTC/cR/g[$s].c/cA/g[$i].c]
