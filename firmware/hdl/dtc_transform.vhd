@@ -55,6 +55,7 @@ use work.config.all;
 use work.tools.all;
 use work.dtc_stubs.all;
 use work.dtc_config.all;
+use work.trackerGeometry.all;
 
 entity dtc_transform_node is
 generic (
@@ -83,9 +84,9 @@ signal valid, reset: std_logic := '0';
 signal bx: std_logic_vector( widthBX - 1 downto 0 ) := ( others => '0' );
 attribute keep of ipbus: signal is "true";
 
-signal ramA: t_ramA := init_A( id );
-signal ramB: t_ramB := init_B( id );
-signal ramC: t_ramC := init_C( id );
+signal ramA: t_ramA := init_ramA( id );
+signal ramB: t_ramB := init_ramB( id );
+signal ramC: t_ramC := init_ramC( id );
 signal addrA: std_logic_vector( widthCol - 1 downto 0 ) := ( others => '0' );
 signal addrB: std_logic_vector( widthCol + widthRowB - 1 downto 0 ) := ( others => '0' );
 signal addrC: std_logic_vector( widthRowC + widthBendCIC - 1 downto 0 ) := ( others => '0' );
@@ -98,6 +99,7 @@ attribute ram_style of ramA: signal is "distributed";
 -- step 2
 
 signal dout: t_stubTransform := nullStub;
+
 
 begin
 

@@ -329,7 +329,7 @@ signal rout: t_stubRoute := ( '0', '0', stdu( numBX, widthBX ), others => ( othe
 signal reset: std_logic := '0';
 signal counterClks: std_logic_vector( widthStubs - 1 downto 0 ) := stdu( numStubs, widthStubs );
 signal counterTFPtmps: std_logic_vector( widthTFPPackets - 1 downto 0 ) := ( others => '0' );
-signal sr: t_stubsTransform( bxClks - 1 downto 0 ) := ( others => nullStub );
+signal sr: t_stubsTransform( 1 + bxClks - 1 downto 0 ) := ( others => nullStub );
 
 begin
 
@@ -547,7 +547,7 @@ if rising_edge( clk ) then
         raddr <= incr( raddr );
     end if;
     if rin.reset = '1' then
-        raddr <= ( others => '0' );
+        raddr <= laddr;
         laddr <= waddr;
     end if;
     rout.bx <= rin.bx;
@@ -559,9 +559,6 @@ if rising_edge( clk ) then
         if rin.bx = tin.bx then
             laddr <= incr( waddr );
         end if;
-    end if;
-    if tin.reset = '1' then
-        waddr <= ( others => '0' );
     end if;
 
 end if;

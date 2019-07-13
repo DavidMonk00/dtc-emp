@@ -22,12 +22,25 @@ port (
 );
 end component;
 
+component dtc_mux_resync
+generic (
+    latency: natural
+);
+port (
+    clk: in std_logic;
+    resync_din: in t_stubsDTC( numOverlap - 1 downto 0 );
+    resync_dout: out t_stubsDTC( numOverlap - 1 downto 0 )
+);
+end component;
+
 begin
 
 g: for k in TMPtfp - 1 downto 0 generate
 
 signal node_din: t_stubsRoute( routeBlocks - 1 downto 0 ) := ( others => nullStub );
 signal node_dout: t_stubsDTC( numOverlap - 1 downto 0 ) := ( others => nullStub );
+signal resync_din: t_stubsDTC( numOverlap - 1 downto 0 ) := ( others => nullStub );
+signal resync_dout: t_stubsDTC( numOverlap - 1 downto 0 ) := ( others => nullStub );
 
 function linkMapping( i: t_stubsRoute ) return t_stubsRoute is
     variable o: t_stubsRoute( routeBlocks - 1 downto 0 ) := ( others => nullStub );
@@ -41,9 +54,12 @@ end function;
 begin
 
 node_din <= linkMapping( mux_din );
-mux_dout( numOverlap * ( k + 1 ) - 1 downto numOverlap * k ) <= node_dout;
+resync_din <= node_dout;
+mux_dout( numOverlap * ( k + 1 ) - 1 downto numOverlap * k ) <= resync_dout;
 
 c: dtc_mux_node port map ( clk, node_din, node_dout );
+
+cR: dtc_mux_resync generic map ( k + 1 ) port map ( clk, resync_din, resync_dout );
 
 end generate;
 
@@ -52,6 +68,129 @@ end;
 
 library ieee;
 use ieee.std_logic_1164.all;
+use work.config.all;
+use work.dtc_stubs.all;
+use work.dtc_config.all;
+
+entity dtc_mux_resync is
+generic (
+    latency: natural
+);
+port (
+    clk: in std_logic;
+    resync_din: in t_stubsDTC( numOverlap - 1 downto 0 );
+    resync_dout: out t_stubsDTC( numOverlap - 1 downto 0 )
+);
+end;
+
+architecture rtl of dtc_mux_resync is
+
+component dtc_resync_node
+generic (
+    latency: natural
+);
+port (
+    clk: in std_logic;
+    node_din: in t_stubDTC;
+    node_dout: out t_stubDTC
+);
+end component;
+
+begin
+
+g: for k in numOverlap - 1 downto 0 generate
+
+signal node_din: t_stubDTC := nullStub;
+signal node_dout: t_stubDTC := nullStub;
+
+begin
+
+node_din <= resync_din( k );
+resync_dout( k ) <= node_dout;
+
+c: dtc_resync_node generic map ( latency ) port map ( clk, node_din, node_dout );
+
+end generate;
+
+end;
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.config.all;
+use work.tools.all;
+use work.dtc_stubs.all;
+use work.dtc_config.all;
+
+entity dtc_resync_node is
+generic (
+    latency: natural
+);
+port (
+    clk: in std_logic;
+    node_din: in t_stubDTC;
+    node_dout: out t_stubDTC
+);
+attribute ram_style: string;
+end;
+
+architecture rtl of dtc_resync_node is
+
+constant widthRam: natural := 1 + 1 + widthR + widthPhiDTC + widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer;
+type t_ram is array ( natural range <> ) of std_logic_vector( widthRam - 1 downto 0 );
+signal ram: t_ram( 2 ** widthStubs - 1 downto 0 ) := ( others => ( others => '0' ) );
+signal waddr: std_logic_vector( widthStubs - 1 downto 0 ) := ( others => '0' );
+signal raddr: std_logic_vector( widthStubs - 1 downto 0 ) := ( others => '0' );
+signal regOptional, reg: std_logic_vector( widthRam - 1 downto 0 ) := ( others => '0' );
+attribute ram_style of ram: signal is "block";
+
+function lconv( t: t_stubDTC ) return std_logic_vector is
+    variable s: std_logic_vector( widthRam - 1 downto 0 ) := ( others => '0' );
+begin
+    s := t.reset & t.valid & t.r & t.phi & t.z & t.mMin & t.mMax & t.etaMin & t.etaMax & t.layer;
+    return s;
+end function;
+
+function lconv( s: std_logic_vector ) return t_stubDTC is
+    variable t: t_stubDTC := nullStub;
+begin
+    t.reset  := s( 1 + 1 + widthR + widthPhiDTC + widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 );
+    t.valid  := s(     1 + widthR + widthPhiDTC + widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 );
+    t.r      := s(         widthR + widthPhiDTC + widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 downto widthPhiDTC + widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer );
+    t.phi    := s(                  widthPhiDTC + widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 downto               widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer );
+    t.z      := s(                                widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 downto                        widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer );
+    t.mMin   := s(                                         widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 downto                                    widthMBin + widthSectorEta + widthSectorEta + widthLayer );
+    t.mMax   := s(                                                     widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 downto                                                widthSectorEta + widthSectorEta + widthLayer );
+    t.etaMin := s(                                                                 widthSectorEta + widthSectorEta + widthLayer - 1 downto                                                                 widthSectorEta + widthLayer );
+    t.etaMax := s(                                                                                  widthSectorEta + widthLayer - 1 downto                                                                                  widthLayer );
+    t.layer  := s(                                                                                                   widthLayer - 1 downto                                                                                           0 );
+    return t;
+end function;
+
+begin
+
+node_dout <= lconv( reg );
+waddr <= std_logic_vector( unsigned( raddr ) + latency );
+
+process( clk ) is
+begin
+if rising_edge( clk ) then
+
+    ram( uint( waddr ) ) <= lconv( node_din );
+    regOptional <= ram( uint( raddr ) );
+    reg <= regOptional;
+    raddr <= incr( raddr );
+
+end if;
+end process;
+
+end;
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.config.all;
 use work.tools.all;
 use work.dtc_stubs.all;
@@ -97,6 +236,16 @@ end function;
 
 function lconv( s: t_stubRoute ) return std_logic_vector is begin return s.r & s.phi & s.z & s.mMin & s.mMax & s.etaMin & s.etaMax & s.layer; end function;
 
+begin
+
+enablesOut <= set_enables( patterns );
+
+
+gOuts: for k in numOverlap - 1 downto 0 generate
+
+signal stub: t_stubDTC := nullStub;
+signal reset: std_logic_vector( 3 downto 0 ) := ( others => '0' );
+
 function lconv( s: std_logic_vector ) return t_stubDTC is
     variable stub: t_stubDTC := nullStub;
 begin
@@ -108,18 +257,13 @@ begin
     stub.etaMin := s(                                                         widthSectorEta + widthSectorEta + widthLayer - 1 downto                                                                 widthSectorEta + widthLayer );
     stub.etaMax := s(                                                                          widthSectorEta + widthLayer - 1 downto                                                                                  widthLayer );
     stub.layer  := s(                                                                                           widthLayer - 1 downto                                                                                           0 );
+    if k = 0 then
+        stub.phi := std_logic_vector( signed( stub.phi ) - 2 ** ( widthPhiDTC - 2 ) );
+    else
+        stub.phi := std_logic_vector( signed( stub.phi ) + 2 ** ( widthPhiDTC - 2 ) );
+    end if;
     return stub;
 end function;
-
-begin
-
-enablesOut <= set_enables( patterns );
-
-
-gOuts: for k in numOverlap - 1 downto 0 generate
-
-signal stub: t_stubDTC := nullStub;
-signal reset: std_logic_vector( 3 downto 0 ) := ( others => '0' );
 
 begin
 
@@ -168,6 +312,20 @@ signal pattern: std_logic_vector( widthPattern - 1 downto 0 ) := ( others => '0'
 signal enableOut: std_logic_vector( widthPattern - 1 downto 0 ) := ( others => '0' );
 
 attribute ram_style of ram: signal is "block";
+
+function lconv( s: std_logic_vector ) return t_stubDTC is
+    variable stub: t_stubDTC := nullStub;
+begin
+    stub.r      := s( widthR + widthPhiDTC + widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 downto widthPhiDTC + widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer );
+    stub.phi    := s(          widthPhiDTC + widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 downto               widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer );
+    stub.z      := s(                        widthZ + widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 downto                        widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer );
+    stub.mMin   := s(                                 widthMBin + widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 downto                                    widthMBin + widthSectorEta + widthSectorEta + widthLayer );
+    stub.mMax   := s(                                             widthMBin + widthSectorEta + widthSectorEta + widthLayer - 1 downto                                                widthSectorEta + widthSectorEta + widthLayer );
+    stub.etaMin := s(                                                         widthSectorEta + widthSectorEta + widthLayer - 1 downto                                                                 widthSectorEta + widthLayer );
+    stub.etaMax := s(                                                                          widthSectorEta + widthLayer - 1 downto                                                                                  widthLayer );
+    stub.layer  := s(                                                                                           widthLayer - 1 downto                                                                                           0 );
+    return stub;
+end function;
 
 begin
 

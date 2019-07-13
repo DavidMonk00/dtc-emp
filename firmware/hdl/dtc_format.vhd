@@ -43,6 +43,7 @@ end;
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.emp_data_types.all;
 use work.tools.all;
 use work.config.all;
@@ -77,16 +78,20 @@ end function;
 
 function lconv( s: std_logic_vector ) return t_stubFE is
     variable stub: t_stubFE := nullStub;
-    variable col, offset: std_logic_vector( widthColCIC - 1 downto 0 ) := stds( 2 ** width( widthColCIC ), widthColCIC );
+    variable col, offset: std_logic_vector( widthColCIC - 1 downto 0 ) := stdu( 2 ** width( widthColCIC - 1 ), widthColCIC );
 begin
     stub.bx   := s( widthBX + widthRow + widthColCIC + widthBendCIC - 1 downto widthRow + widthColCIC + widthBendCIC );
     stub.row  := s(           widthRow + widthColCIC + widthBendCIC - 1 downto            widthColCIC + widthBendCIC );
          col  := s(                      widthColCIC + widthBendCIC - 1 downto                          widthBendCIC );
     stub.bend := s(                                    widthBendCIC - 1 downto                                     0 );
-    stub.col  := col - offset;
+    --stub.col  := col - offset;
+    --stub.col  := col + offset;
+    stub.col := std_logic_vector( resize( signed( col ), widthCol ) + 2 ** ( widthColCIC - 1 ) );
     return stub;
 end function;
-function lconv( s: t_stubCIC ) return t_stubFE is begin return ( s.reset, s.valid, s.bx, s.row, s.col + stds( 2 ** width( widthColCIC ), widthColCIC ), s.bend ); end function;
+--function lconv( s: t_stubCIC ) return t_stubFE is begin return ( s.reset, s.valid, s.bx, s.row, s.col + stds( 2 ** width( widthColCIC ), widthColCIC ), s.bend ); end function;
+--function lconv( s: t_stubCIC ) return t_stubFE is begin return ( s.reset, s.valid, s.bx, s.row, s.col - stds( 2 ** width( widthColCIC - 1 ), widthColCIC ), s.bend ); end function;
+function lconv( s: t_stubCIC ) return t_stubFE is begin return ( s.reset, s.valid, s.bx, s.row, std_logic_vector( resize( signed( s.col ), widthCol ) - 2 ** ( widthColCIC - 1 ) ), s.bend ); end function;
 
 begin
 
@@ -209,20 +214,25 @@ process ( clk ) is
 begin
 if rising_edge( clk ) then
 
+
+    dout.data <= ( others => '0' );
     if dout.valid = '1' then
+        if din.valid = '1' then
+            dout.data <= conv( din );
+        end if;
         counter <= incr( counter );
         if uint( counter ) = numStubs - downTime - 1 then
             dout.valid <= '0';
+            dout.data <= ( others => '0' );
         end if;
     end if;
 
     reset <= din.reset;
-    dout.data <= ( others => '0' );
-    if din.valid = '1' then
-        dout.data <= conv( din );
-    end if;
     if reset = '1' then
         dout.valid <= '1';
+        if din.valid = '1' then
+            dout.data <= conv( din );
+        end if;
         counter <= ( others => '0' );
     end if;
 
