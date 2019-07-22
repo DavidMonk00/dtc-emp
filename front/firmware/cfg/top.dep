@@ -1,0 +1,5 @@
+src emp_payload.vhd
+addrtab -c emp-fwk:components/payload emp_payload.xml
+src -c emp-fwk:components/payload ../ucf/emp_simple_payload.tcl
+include -c emp-fwk:boards/serenity/dc_ku15p
+src dc_ku15p_decl.vhd
