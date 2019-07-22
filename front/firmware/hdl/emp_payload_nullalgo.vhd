@@ -36,28 +36,40 @@ entity emp_payload is
 end emp_payload;
 
 architecture rtl of emp_payload is
-    constant PAYLOAD_LATENCY : integer := 5;
-	signal dr: ldata(N_REGION * 4 - 1 downto 0);
-    type t_payload_shiftreg is array(PAYLOAD_LATENCY downto 0) of ldata(N_REGION*4 - 1 downto 0);
-    signal payload_shiftreg: t_payload_shiftreg;
+
+	type dr_t is array(PAYLOAD_LATENCY downto 0) of ldata(3 downto 0);
 
 begin
+
 	ipb_out <= IPB_RBUS_NULL;
-    gen: for i in N_REGION*4 - 1 downto 0 generate
+
+	gen: for i in N_REGION - 1 downto 0 generate
+
+		constant ich: integer := i * 4 + 3;
+		constant icl: integer := i * 4;
+		signal dr: dr_t;
+
+		attribute SHREG_EXTRACT: string;
+		attribute SHREG_EXTRACT of dr: signal is "no"; -- Don't absorb FFs into shreg
+
 	begin
-          dr(i).data <= std_logic_vector(unsigned(d(i).data) + to_unsigned(5,LWORD_WIDTH));
-          dr(i).valid <= d(i).valid;
-          dr(i).start <= d(i).start;
-          dr(i).strobe <= d(i).strobe;
+
+		dr(0) <= d(ich downto icl);
+
+		process(clk_p) -- Mother of all shift registers
+		begin
+			if rising_edge(clk_p) then
+				dr(PAYLOAD_LATENCY downto 1) <= dr(PAYLOAD_LATENCY - 1 downto 0);
+			end if;
+		end process;
+
+		q(ich downto icl) <= dr(PAYLOAD_LATENCY);
+
 	end generate;
-        process(clk_p) -- Mother of all shift registers
-        begin
-          if rising_edge(clk_p) then
-            payload_shiftreg <= payload_shiftreg(PAYLOAD_LATENCY-1 downto 0) & dr;
-          end if;
-        end process;
-    q <= payload_shiftreg(PAYLOAD_LATENCY);
+
 	bc0 <= '0';
+
 	gpio <= (others => '0');
 	gpio_en <= (others => '0');
+
 end rtl;
