@@ -6,6 +6,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+USE ieee.numeric_std.ALL;
 
 use work.ipbus.all;
 use work.emp_data_types.all;
