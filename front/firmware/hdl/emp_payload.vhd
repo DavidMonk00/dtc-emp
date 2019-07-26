@@ -28,8 +28,8 @@ entity emp_payload is
 		clken_loc: in std_logic_vector(N_REGION - 1 downto 0);
 		ctrs: in ttc_stuff_array;
 		bc0: out std_logic;
-		d: in ldata(4 * N_REGION - 1 downto 0); -- data in
-		q: out ldata(4 * N_REGION - 1 downto 0); -- data out
+		d: in ldata(4 * N_REGION - 1 downto 0) := (others => LWORD_NULL); -- data in
+		q: out ldata(4 * N_REGION - 1 downto 0) := (others => LWORD_NULL); -- data out
 		gpio: out std_logic_vector(29 downto 0); -- IO to mezzanine connector
 		gpio_en: out std_logic_vector(29 downto 0) -- IO to mezzanine connector (three-state enables)
 	);
@@ -61,7 +61,7 @@ begin
     algoInstance : entity work.algo
     port map (
         -- Input Ports --
-        clk => clk,
+        clk => clk_p,
         links_in => d,
 
         -- Output Ports --

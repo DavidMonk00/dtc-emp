@@ -35,7 +35,7 @@ begin
          );
     end generate;
 
-    TopInstance : entity work.top
+    AlgoInstance : entity work.algo
     PORT MAP(
         clk => clk,
         links_in => links_in,
