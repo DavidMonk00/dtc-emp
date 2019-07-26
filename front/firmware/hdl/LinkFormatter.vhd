@@ -6,13 +6,13 @@ use IEEE.std_logic_unsigned.all;
 
 -- Project specific imports
 use work.data_types.all;
-
+use work.emp_data_types.all;
 
 
 entity LinkFormatter2 is
     port (
         clk : in std_logic;
-        LinksIn : in tLinksIn;
+        LinksIn : in ldata;
         StubPipeOut : out tCICStubPipe
     );
 end LinkFormatter2;
@@ -47,19 +47,19 @@ begin
                     if counter < header_frames then
                             StubArray(i * stubs_per_word + j).payload.valid <= '0';
 
-                            StubArray(i * stubs_per_word + j).header.boxcar_number <= unsigned(LinksIn(i)(63 downto 52));
-                            StubArray(i * stubs_per_word + j).header.stub_count <= unsigned(LinksIn(i)(51 downto 46));
+                            StubArray(i * stubs_per_word + j).header.boxcar_number <= unsigned(LinksIn(i).data(63 downto 52));
+                            StubArray(i * stubs_per_word + j).header.stub_count <= unsigned(LinksIn(i).data(51 downto 46));
                     else
                         -- Conversion to current DTC input word format
 
                             StubArray(i * stubs_per_word + j).header.boxcar_number  <= StubArray(i * stubs_per_word + j).header.boxcar_number;
                             StubArray(i * stubs_per_word + j).header.stub_count     <= StubArray(i * stubs_per_word + j).header.stub_count;
 
-                            StubArray(i * stubs_per_word + j).payload.valid         <= LinksIn(i)(63 - j * stub_width);
-                            StubArray(i * stubs_per_word + j).payload.bx            <= unsigned(LinksIn(i)(63 - (j * stub_width + 1) downto 63 - (j * stub_width + 7)));
-                            StubArray(i * stubs_per_word + j).payload.row           <= signed(LinksIn(i)(63 - (j * stub_width + 8) downto 63 - (j * stub_width + 18)));
-                            StubArray(i * stubs_per_word + j).payload.column        <= signed(LinksIn(i)(63 - (j * stub_width + 19) downto 63 - (j * stub_width + 23)));
-                            StubArray(i * stubs_per_word + j).payload.bend          <= signed(LinksIn(i)(63 - (j * stub_width + 24) downto 63 - (j * stub_width + 27)));
+                            StubArray(i * stubs_per_word + j).payload.valid         <= LinksIn(i).valid;
+                            StubArray(i * stubs_per_word + j).payload.bx            <= unsigned(LinksIn(i).data(63 - (j * stub_width + 1) downto 63 - (j * stub_width + 7)));
+                            StubArray(i * stubs_per_word + j).payload.row           <= signed(LinksIn(i).data(63 - (j * stub_width + 8) downto 63 - (j * stub_width + 18)));
+                            StubArray(i * stubs_per_word + j).payload.column        <= signed(LinksIn(i).data(63 - (j * stub_width + 19) downto 63 - (j * stub_width + 23)));
+                            StubArray(i * stubs_per_word + j).payload.bend          <= signed(LinksIn(i).data(63 - (j * stub_width + 24) downto 63 - (j * stub_width + 27)));
 
                     end if;
                 end if;

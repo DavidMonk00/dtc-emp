@@ -25,6 +25,7 @@ use IEEE.numeric_std.all;
 
 -- Project specific imports
 use work.data_types.all;
+use work.emp_data_types.all;
 
 entity RouterInputReformatting is
     port (
@@ -33,7 +34,7 @@ entity RouterInputReformatting is
         StubPipeIn : in tStubPipe;
 
         -- Output Ports --
-        WordsOut : out tRouterInputArray
+        WordsOut : out ldata(2*link_count*stubs_per_word - 1 downto 0)
     );
 end RouterInputReformatting;
 
@@ -46,18 +47,18 @@ begin
         pFormat : process(clk)
         begin
             if rising_edge(clk) then
-                WordsOut(2 * i)(4 downto 0) <= std_logic_vector(StubPipeIn(0)(i).header.bx);
-                WordsOut(2 * i)(6 downto 5) <= std_logic_vector(StubPipeIn(0)(i).header.nonant);
+                WordsOut(2 * i).data(4 downto 0) <= std_logic_vector(StubPipeIn(0)(i).header.bx);
+                WordsOut(2 * i).data(6 downto 5) <= std_logic_vector(StubPipeIn(0)(i).header.nonant);
 
-                WordsOut(2 * i + 1)(0) <= StubPipeIn(0)(i).payload.valid;
-                WordsOut(2 * i + 1)(12 downto 1) <= std_logic_vector(to_unsigned(StubPipeIn(0)(i).payload.r, 12));
-                WordsOut(2 * i + 1)(24 downto 13) <= std_logic_vector(to_signed(StubPipeIn(0)(i).payload.z, 12));
-                WordsOut(2 * i + 1)(41 downto 25) <= std_logic_vector(to_signed(StubPipeIn(0)(i).payload.phi, 17));
-                WordsOut(2 * i + 1)(45 downto 42) <= std_logic_vector(StubPipeIn(0)(i).payload.alpha);
-                WordsOut(2 * i + 1)(49 downto 46) <= std_logic_vector(StubPipeIn(0)(i).payload.bend);
-                WordsOut(2 * i + 1)(51 downto 50) <= std_logic_vector(StubPipeIn(0)(i).payload.layer);
-                WordsOut(2 * i + 1)(52) <= StubPipeIn(0)(i).payload.barrel;
-                WordsOut(2 * i + 1)(53) <= StubPipeIn(0)(i).payload.module;
+                WordsOut(2 * i + 1).valid <= StubPipeIn(0)(i).payload.valid;
+                WordsOut(2 * i + 1).data(12 downto 1) <= std_logic_vector(to_unsigned(StubPipeIn(0)(i).payload.r, 12));
+                WordsOut(2 * i + 1).data(24 downto 13) <= std_logic_vector(to_signed(StubPipeIn(0)(i).payload.z, 12));
+                WordsOut(2 * i + 1).data(41 downto 25) <= std_logic_vector(to_signed(StubPipeIn(0)(i).payload.phi, 17));
+                WordsOut(2 * i + 1).data(45 downto 42) <= std_logic_vector(StubPipeIn(0)(i).payload.alpha);
+                WordsOut(2 * i + 1).data(49 downto 46) <= std_logic_vector(StubPipeIn(0)(i).payload.bend);
+                WordsOut(2 * i + 1).data(51 downto 50) <= std_logic_vector(StubPipeIn(0)(i).payload.layer);
+                WordsOut(2 * i + 1).data(52) <= StubPipeIn(0)(i).payload.barrel;
+                WordsOut(2 * i + 1).data(53) <= StubPipeIn(0)(i).payload.module;
             end if;
         end process;
     end generate;

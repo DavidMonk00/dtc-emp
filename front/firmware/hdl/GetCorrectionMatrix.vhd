@@ -36,11 +36,11 @@ entity GetCorrectionMatrix is
         -- Input Ports --
         clk : in std_logic;
         StubPipeIn : in tCICStubPipe;
-        bus_in : in tFMBus(0 to 71);
+        bus_in : in tFMBus(0 to stubs_per_word*link_count - 1);
 
         -- Output Ports --
         MatricesOut : out tCorrectionMatrixArray := NullCorrectionMatrixArray;
-        bus_out : out tFMBus(0 to 71)
+        bus_out : out tFMBus(0 to stubs_per_word*link_count - 1)
     );
 end GetCorrectionMatrix;
 

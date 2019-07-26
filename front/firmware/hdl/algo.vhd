@@ -31,15 +31,18 @@ use work.data_types.all;
 use work.FunkyMiniBus.all;
 use work.utilities_pkg.all;
 
+use work.emp_data_types.all;
+use work.emp_device_decl.all;
+
 
 entity algo is
     PORT (
         -- Input Ports --
         clk : in std_logic;
-        links_in : in tLinksIn;
+        links_in : in ldata;
 
         -- Output Ports --
-        data_out : out tRouterInputArray := NullRouterInputArray
+        data_out : out ldata(N_REGION * 4 - 1 downto 0)
     );
 end algo;
 
@@ -56,7 +59,7 @@ architecture Behavioral of algo is
     -- signal pre_stubs : tStubArray; -- Array of converted stubs
     -- signal stubs : tStubArray;
     signal matrices : tCorrectionMatrixArray := NullCorrectionMatrixArray;
-    signal matrix_bus_out, matrix_bus_in : tFMBus(0 to 71);
+    signal matrix_bus_out, matrix_bus_in : tFMBus(0 to stubs_per_word*link_count - 1);
 
 begin
 
@@ -100,7 +103,8 @@ begin
     port map (
         clk => clk,
         StubPipeIn => CorrectedStubPipe,
-        WordsOut => data_out
+        WordsOut(link_count - 1 downto 0) => data_out,
+        WordsOut(2*stubs_per_word*link_count - 1 downto link_count) => open
     );
 
 end Behavioral;
