@@ -68,7 +68,7 @@ begin
         gPromClocked : for j in 0 to 2 generate
             PosLutInstance0 : ENTITY work.GenPromClocked
                 GENERIC MAP(
-                  FileName => "random_" & INTEGER'IMAGE(j) & ".mif",
+                  FileName => "modules_" & INTEGER'IMAGE(j) & ".mif",
                   BusName  => "A/PosLutA" & INTEGER'IMAGE(i)
                 )
                 PORT MAP(

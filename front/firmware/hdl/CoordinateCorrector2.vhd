@@ -43,9 +43,11 @@ end CoordinateCorrector2;
 
 architecture Behavioral of CoordinateCorrector2 is
     type tCoordVector is record
-        xz : integer;
+        xz  : integer;
         phi : integer;
-        z : integer;
+        z   : integer;
+        r_1 : integer;
+        r_2 : integer;
     end record;
 
     constant initial_offset : integer := 0;
@@ -61,9 +63,11 @@ begin
         pMultiplication : process(clk)
         begin
             if rising_edge(clk) then
-                vector_buff.z <= to_integer(StubPipeIn(initial_offset + 0)(i).intrinsic.column) * MatricesIn(i)(0);
-                vector_buff.phi <= to_integer(StubPipeIn(initial_offset + 0)(i).intrinsic.strip) * MatricesIn(i)(1);
-                vector_buff.xz <= StubPipeIn(initial_offset + 0)(i).intrinsic.crossterm * MatricesIn(i)(2);
+                vector_buff.r_1 <= to_integer(StubPipeIn(initial_offset + 0)(i).intrinsic.column) * MatricesIn(i).sinbeta;
+                vector_buff.r_2 <= to_integer(StubPipeIn(initial_offset + 0)(i).intrinsic.strip) * MatricesIn(i).sintheta;
+                vector_buff.z <= to_integer(StubPipeIn(initial_offset + 0)(i).intrinsic.column) * MatricesIn(i).cosbeta;
+                vector_buff.phi <= to_integer(StubPipeIn(initial_offset + 0)(i).intrinsic.strip) * MatricesIn(i).rinv;
+                vector_buff.xz <= StubPipeIn(initial_offset + 0)(i).intrinsic.crossterm * MatricesIn(i).sinbeta_rsquared;
             end if;
         end process;
 
@@ -73,7 +77,9 @@ begin
                 vector_buff_second.z <= StubPipeIn(initial_offset + 1)(i).payload.z + vector_buff.z;
                 vector_buff_second.phi <= StubPipeIn(initial_offset + 1)(i).payload.phi + vector_buff.phi;
                 vector_buff_second.xz <= vector_buff.xz;
+                vector_buff_second.r_1 <= vector_buff.r_1 + vector_buff.r_2;
 
+                vector.r_1 <= StubPipeIn(initial_offset + 3)(i).payload.r + vector_buff_second.r_1;
                 vector.z <= vector_buff_second.z;
                 vector.phi <= vector_buff_second.phi + vector_buff_second.xz;
             end if;
@@ -83,7 +89,7 @@ begin
         begin
             if rising_edge(clk) then
                 StubArray(i).header <= StubPipeIn(initial_offset + 3)(i).header;
-                StubArray(i).payload.r <= StubPipeIn(initial_offset + 3)(i).payload.r;
+                StubArray(i).payload.r <= vector.r_1;
                 StubArray(i).payload.z <= vector.z;
                 StubArray(i).payload.phi <= vector.phi;
                 StubArray(i).payload.alpha <= StubPipeIn(initial_offset + 3)(i).payload.alpha;

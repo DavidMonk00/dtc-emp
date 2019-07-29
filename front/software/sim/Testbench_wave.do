@@ -9,19 +9,22 @@
 #if { [catch {[add wave *]}] } {}
 
 ### General Simulation ###
-add wave sim:/testbench/clk
-add wave sim:/testbench/AlgoInstance/CICStubPipe(0)(0)
-add wave sim:/testbench/AlgoInstance/FormattedStubPipe(0)(0)
-add wave sim:/testbench/AlgoInstance/CorrectedStubPipe(0)(0)
-add wave -divider
+#add wave sim:/testbench/clk
+#add wave sim:/testbench/AlgoInstance/CICStubPipe(0)(0)
+#add wave sim:/testbench/AlgoInstance/FormattedStubPipe(0)(0)
+#add wave sim:/testbench/AlgoInstance/CorrectedStubPipe(0)(0)
+#add wave -divider
 
 ### CoordinateCorrector ###
-add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeIn(0)(0).intrinsic
-add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/MatricesIn(0)
-add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector_buff.phi
-add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeIn(3)(0).payload.phi
-add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector.phi
-add wave -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeOut(0)(0)
-add wave -divider
-add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(0)/xy
-add wave -divider
+#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeIn(0)(0).intrinsic
+#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/MatricesIn(0)
+#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector_buff.phi
+#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeIn(3)(0).payload.phi
+#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector.phi
+#add wave -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeOut(0)(0)
+#add wave -divider
+#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(0)/xy
+#add wave -divider
+
+add wave -position insertpoint sim:/testbench/links_in
+add wave -position insertpoint sim:/testbench/links_out

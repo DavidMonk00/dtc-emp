@@ -2,6 +2,41 @@ import re
 import numpy as np
 
 
+class ldata:
+    def __init__(self, string):
+        data = string.split(" ")
+        self.data = int(data[0][4:], 16)
+        self.valid = bool(data[1])
+        self.start = bool(data[2])
+        self.strobe = bool(data[3])
+
+    def __getitem___(self, index):
+        return self.data[index]
+
+
+def parse(string):
+    data = []
+    i = 0
+    start, end, depth = 0, 0, 0
+    while (i < len(string)):
+        if (string[i] == '{'):
+            if (depth == 0):
+                start = i
+            depth += 1
+        elif (string[i] == '}'):
+            depth -= 1
+            if (depth == 0):
+                end = i
+                data.append(string[start+1:end])
+        i += 1
+    if len(data) == 0:
+        return ldata(string)
+    else:
+        for i in range(len(data)):
+            data[i] = parse(data[i])
+    return data
+
+
 class Signal:
     def __init__(self, path):
         self.path = path
@@ -39,20 +74,35 @@ class Signal:
         return np.array(self.data).shape
 
 
-def main():
-    signals = [Signal("/testbench/links_in"), Signal("/testbench/links_out")]
-    lines = [line.strip() for line in open("event.lst")]
+def parseEventFile(file):
+    signals = [
+        Signal("/testbench/links_in\(0\)"),
+        Signal("/testbench/links_out\(0\)"),
+        Signal("/testbench/links_out\(1\)")
+    ]
+    lines = [line.strip() for line in open(file)]
     for line in lines:
-        # reg = re.search("\@[0-9]* ", line)
-        # if (reg):
-        #     print(line)
         for signal in signals:
             reg = re.search("(?<=%s\ ).*" % signal.path, line)
             if (reg):
+                print(reg.group())
                 signal.append(reg.group())
 
     for signal in signals:
         print(signal.size())
+
+
+def parseListFile(file):
+    lines = [line.strip() for line in open(file)]
+    for i in range(2, len(lines)):
+        lines[i] = parse(lines[i])
+        print(
+            hex(lines[i][0][0].data), lines[i][1][1].data, lines[i][1][0].data
+        )
+
+
+def main():
+    parseListFile("list2.lst")
 
 
 if __name__ == '__main__':

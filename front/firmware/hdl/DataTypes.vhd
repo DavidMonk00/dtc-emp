@@ -162,7 +162,7 @@ package data_types is
         110, 111, 112, 113, 114, 115, 116, 117, 118, 119,
         120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
         130, 131, 132, 133, 134, 135, 136, 137, 138, 139,
-        140, 141, 142, 143 
+        140, 141, 142, 143
     );
 
 
@@ -173,21 +173,25 @@ package data_types is
 
     -- Correction matrix - exact format is still undecided as I do not know the
     -- range of values for the module dimensions.
-    type tCorrectionMatrix is array(integer range 0 to 5) of integer; -- range -16 to 15;
+    type tCorrectionMatrix is record
+        sintheta            : integer;
+        sinbeta             : integer;
+        rinv                : integer;
+        sinbeta_rsquared    : integer;
+        cosbeta             : integer;
+    end record;
     constant NullCorrectionMatrix : tCorrectionMatrix := (others => 0);
-    constant testCorrectionMatrix : tCorrectionMatrix := (
-        0, 1, 2, 3, 4, 5
-    ); -- placeholder matrix to test the framework for the correction.
+
     type tUnconstrainedCorrectionMatrixArray is array(integer range <>) of tCorrectionMatrix;
     subtype tCorrectionMatrixArray is tUnconstrainedCorrectionMatrixArray(0 to link_count*stubs_per_word - 1);
     constant NullCorrectionMatrixArray : tCorrectionMatrixArray := (others => NullCorrectionMatrix);
 
 
-    constant Nulllword : std_logic_vector(63 downto 0) := (others => '0');
-    type tUnconstrainedlwordArray is array(integer range <>) of std_logic_vector(63 downto 0);
-    subtype tRouterInputWord is tUnconstrainedlwordArray(0 to 1);
-    constant NullRouterInputWord : tRouterInputWord := (others => Nulllword);
-    subtype tRouterInputArray is tUnconstrainedlwordArray(0 to 2*link_count*stubs_per_word -1);
-    constant NullRouterInputArray : tRouterInputArray := (others => Nulllword);
+    -- constant Nulllword : std_logic_vector(63 downto 0) := (others => '0');
+    -- type tUnconstrainedlwordArray is array(integer range <>) of std_logic_vector(63 downto 0);
+    -- subtype tRouterInputWord is tUnconstrainedlwordArray(0 to 1);
+    -- constant NullRouterInputWord : tRouterInputWord := (others => Nulllword);
+    -- subtype tRouterInputArray is tUnconstrainedlwordArray(0 to 2*link_count*stubs_per_word -1);
+    -- constant NullRouterInputArray : tRouterInputArray := (others => Nulllword);
 
 end package data_types;

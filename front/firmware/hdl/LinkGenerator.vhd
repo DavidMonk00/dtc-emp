@@ -26,6 +26,7 @@ use IEEE.numeric_std.all;
 use IEEE.std_logic_textio.all;
 use std.textio.all;
 
+use work.emp_data_types.all;
 
 entity LinkGenerator is
     PORT(
@@ -33,7 +34,7 @@ entity LinkGenerator is
         clk : in std_logic;
 
         -- Output Ports --
-        links_out : out std_logic_vector(63 downto 0) := (others => '0')
+        links_out : out lword := LWORD_NULL
     );
 end LinkGenerator;
 
@@ -56,7 +57,8 @@ begin
             wait until clk = '1' and clk'event;
             readline(read_file, line_v);
             hread(line_v, slv_v);
-            links_out <= slv_v;
+            links_out.data <= slv_v;
+            links_out.valid <= '1';
             -- report "slv_v: " & to_hstring(slv_v);
             -- hwrite(line_v, slv_v);
             -- writeline(write_file, line_v);

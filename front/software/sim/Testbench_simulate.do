@@ -22,6 +22,6 @@ do {Testbench.udo}
 
 add list  sim:/testbench/links_in
 add list  sim:/testbench/links_out
-run 50000ns
-write list -events /home/dmonk/Firmware/dtc-fw/src/dtc-front/front/software/sim/event.lst
+run 2000ns
+write list /home/dmonk/Firmware/dtc-fw/src/dtc-front/front/software/sim/list2.lst
 quit

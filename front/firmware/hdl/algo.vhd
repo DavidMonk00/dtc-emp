@@ -39,10 +39,10 @@ entity algo is
     PORT (
         -- Input Ports --
         clk : in std_logic;
-        links_in : in ldata;
+        links_in : in ldata(link_count - 1 downto 0) := (others => LWORD_NULL);
 
         -- Output Ports --
-        data_out : out ldata
+        data_out : out ldata(4*link_count - 1 downto 0) := (others => LWORD_NULL)
     );
 end algo;
 
@@ -59,7 +59,7 @@ architecture Behavioral of algo is
     -- signal pre_stubs : tStubArray; -- Array of converted stubs
     -- signal stubs : tStubArray;
     signal matrices : tCorrectionMatrixArray := NullCorrectionMatrixArray;
-    signal matrix_bus_out, matrix_bus_in : tFMBus(0 to stubs_per_word*link_count - 1);
+    signal matrix_bus_out, matrix_bus_in : tFMBusArray;
 
 begin
 

@@ -34,7 +34,7 @@ entity RouterInputReformatting is
         StubPipeIn : in tStubPipe;
 
         -- Output Ports --
-        WordsOut : out ldata(2*link_count*stubs_per_word - 1 downto 0)
+        WordsOut : out ldata(2*link_count*stubs_per_word - 1 downto 0) := (others => LWORD_NULL)
     );
 end RouterInputReformatting;
 
@@ -47,6 +47,7 @@ begin
         pFormat : process(clk)
         begin
             if rising_edge(clk) then
+                WordsOut(2 * i).valid <= StubPipeIn(0)(i).payload.valid;
                 WordsOut(2 * i).data(4 downto 0) <= std_logic_vector(StubPipeIn(0)(i).header.bx);
                 WordsOut(2 * i).data(6 downto 5) <= std_logic_vector(StubPipeIn(0)(i).header.nonant);
 

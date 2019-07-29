@@ -20,5 +20,5 @@ python checkerrors.py compile.log
 
 echo "Running ModelSim..."
 cp ../data/* ./
-ExecStep $bin_path/vsim -c -64  -do "do {Testbench_simulate.do}" -l simulate.log
+ExecStep $bin_path/vsim $1 -64  -do "do {Testbench_simulate.do}" -l simulate.log
 python parseoutput.py
