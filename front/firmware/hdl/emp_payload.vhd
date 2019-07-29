@@ -65,7 +65,8 @@ begin
         links_in => d,
 
         -- Output Ports --
-        data_out => q
+		data_out(N_REGION * 4 - 1 downto 0) => q,
+        data_out(2*2*N_REGION * 4 - 1 downto N_REGION * 4) => open
     );
 	bc0 <= '0';
 	gpio <= (others => '0');

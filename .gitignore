@@ -1,3 +1,5 @@
 *.lst
 *.log
 *.wlf
+front/software/c++
+front/software/c++/*

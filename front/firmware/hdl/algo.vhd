@@ -42,7 +42,7 @@ entity algo is
         links_in : in ldata;
 
         -- Output Ports --
-        data_out : out ldata(N_REGION * 4 - 1 downto 0)
+        data_out : out ldata
     );
 end algo;
 
@@ -103,8 +103,7 @@ begin
     port map (
         clk => clk,
         StubPipeIn => CorrectedStubPipe,
-        WordsOut(link_count - 1 downto 0) => data_out,
-        WordsOut(2*stubs_per_word*link_count - 1 downto link_count) => open
+        WordsOut => data_out
     );
 
 end Behavioral;

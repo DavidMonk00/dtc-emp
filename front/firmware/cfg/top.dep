@@ -3,3 +3,21 @@ addrtab -c emp-fwk:components/payload emp_payload.xml
 src -c emp-fwk:components/payload ../ucf/emp_simple_payload.tcl
 include -c emp-fwk:boards/serenity/dc_ku15p
 src dc_ku15p_decl.vhd
+
+src CICStubPipe.vhd
+src CoordinateCorrector2.vhd
+src DataTypes.vhd
+src FunkyMiniBus.vhd
+src GenPromClocked.vhd
+src GetCorrectionMatrix.vhd
+src LinkFormatter.vhd
+src RouterInputReformatting.vhd
+src StubFormatter.vhd
+src StubPipe.vhd
+src algo.vhd
+src utilities.vhd
+
+src ../data/A_PosLutLow_11to18.mif
+src ../data/random_0.mif
+src ../data/random_1.mif
+src ../data/random_2.mif
