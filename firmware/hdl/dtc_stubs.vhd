@@ -7,24 +7,6 @@ use work.emp_data_types.all;
 
 package dtc_stubs is
 
-
-type t_ipbus is
-record
-    enA: std_logic;
-    enB: std_logic;
-    enC: std_logic;
-    enLayer: std_logic;
-    addrA: std_logic_vector( widthCol - 1 downto 0 );
-    addrB: std_logic_vector( widthCol + 5 - 1 downto 0 );
-    addrC: std_logic_vector( 4 + widthBendCIC - 1 downto 0 );
-    wordA: std_logic_vector( widthZ - 1 downto 0 );
-    wordB: std_logic_vector( widthR + widthPhiDTC + widthSectorEta + widthSectorEta - 1 downto 0 );
-    wordC: std_logic_vector( widthMBin + widthMBin + numOverlap - 1 downto 0 );
-    layer: std_logic_vector( widthLayer - 1 downto 0 );
-end record;
-type t_ipbuss is array ( natural range <> ) of t_ipbus;
-function nullBus return t_ipbus;
-
 constant widthStubCIC: natural := widthBendCIC + widthColCIC + widthRow + widthBX + 1;
 constant gap         : natural := LWORD_WIDTH / numCIC - widthStubCIC;
 
@@ -116,7 +98,6 @@ end;
 
 package body dtc_stubs is
 
-function nullBus return t_ipbus is begin return ( '0', '0', '0', '0', others => ( others => '0' ) ); end function;
 
 function nullStub return t_stubCIC       is begin return ( '0', '0', others => ( others => '0' ) ); end function;
 function nullStub return t_stubFE        is begin return ( '0', '0', others => ( others => '0' ) ); end function;

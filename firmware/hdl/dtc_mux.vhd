@@ -51,6 +51,15 @@ begin
     return o;
 end function;
 
+function init_latency return natural is
+begin
+    --if k mod 2 = 1 then
+        --return k + 1 + bxClks;
+    --end if;
+    return k + 1;
+end function;
+constant latency: natural := init_latency;
+
 begin
 
 node_din <= linkMapping( mux_din );
@@ -59,7 +68,7 @@ mux_dout( numOverlap * ( k + 1 ) - 1 downto numOverlap * k ) <= resync_dout;
 
 c: dtc_mux_node port map ( clk, node_din, node_dout );
 
-cR: dtc_mux_resync generic map ( k + 1 ) port map ( clk, resync_din, resync_dout );
+cR: dtc_mux_resync generic map ( latency ) port map ( clk, resync_din, resync_dout );
 
 end generate;
 

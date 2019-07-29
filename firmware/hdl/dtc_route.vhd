@@ -561,6 +561,12 @@ if rising_edge( clk ) then
         end if;
     end if;
 
+    if tin.reset = '1' and uint( tin.bx ) = 0 then
+        raddr <= ( others => '0' );
+        waddr <= ( others => '0' );
+        laddr <= ( others => '0' );
+    end if;
+
 end if;
 end process;
 

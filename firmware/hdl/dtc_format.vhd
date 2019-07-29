@@ -84,14 +84,20 @@ begin
     stub.row  := s(           widthRow + widthColCIC + widthBendCIC - 1 downto            widthColCIC + widthBendCIC );
          col  := s(                      widthColCIC + widthBendCIC - 1 downto                          widthBendCIC );
     stub.bend := s(                                    widthBendCIC - 1 downto                                     0 );
-    --stub.col  := col - offset;
-    --stub.col  := col + offset;
     stub.col := std_logic_vector( resize( signed( col ), widthCol ) + 2 ** ( widthColCIC - 1 ) );
+    if not psModule then
+        stub.col := std_logic_vector( resize( signed( col ), widthCol ) );
+    end if;
     return stub;
 end function;
---function lconv( s: t_stubCIC ) return t_stubFE is begin return ( s.reset, s.valid, s.bx, s.row, s.col + stds( 2 ** width( widthColCIC ), widthColCIC ), s.bend ); end function;
---function lconv( s: t_stubCIC ) return t_stubFE is begin return ( s.reset, s.valid, s.bx, s.row, s.col - stds( 2 ** width( widthColCIC - 1 ), widthColCIC ), s.bend ); end function;
-function lconv( s: t_stubCIC ) return t_stubFE is begin return ( s.reset, s.valid, s.bx, s.row, std_logic_vector( resize( signed( s.col ), widthCol ) - 2 ** ( widthColCIC - 1 ) ), s.bend ); end function;
+function lconv( s: t_stubCIC ) return t_stubFE is
+    variable col: std_logic_vector( widthCol - 1 downto 0 ) := std_logic_vector( resize( signed( s.col ), widthCol ) );
+begin
+    if psModule then
+        col := std_logic_vector( signed( col ) - 2 ** ( widthColCIC - 1 ) );
+    end if;
+    return ( s.reset, s.valid, s.bx, s.row, col, s.bend );
+end function;
 
 begin
 

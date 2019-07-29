@@ -41,7 +41,6 @@ end component;
 
 begin
 
-
 DTC: dtc_top port map ( clk_p, d, q );
 
 gpio <= ( others => '0' );

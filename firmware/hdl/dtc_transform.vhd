@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.config.all;
 use work.dtc_stubs.all;
+use work.dtc_config.all;
 
 entity dtc_transform is
 port (
@@ -51,6 +52,7 @@ end;
 library ieee, std;
 use std.textio.all;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.config.all;
 use work.tools.all;
 use work.dtc_stubs.all;
@@ -69,6 +71,7 @@ port (
 );
 attribute ram_style: string;
 attribute keep: string;
+attribute use_dsp: string;
 end;
 
 
@@ -77,41 +80,57 @@ architecture rtl of dtc_transform_node is
 
 -- step 1
 
-signal layer: std_logic_vector( widthLayer - 1 downto 0 ) := layers( id );
 signal ipbus: t_ipbus := nullBus;
 signal din: t_stubFE := nullStub;
-signal valid, reset: std_logic := '0';
-signal bx: std_logic_vector( widthBX - 1 downto 0 ) := ( others => '0' );
+signal reset: std_logic_vector( 6 - 1 downto 0 ) := ( others => '0' );
+signal valid: std_logic_vector( 6 - 1 downto 0 ) := ( others => '0' );
+signal bx: t_bxs( 6 - 1 downto 0 ) := ( others => ( others => '0' ) );
+signal row: t_rows( 2 - 1 downto 0 ) := ( others => ( others => '0' ) );
+signal ramPos: t_ramPos := init_ramPos( id );
+signal ramBend: t_ramBend := init_ramBend( id );
+signal regOptionalPos: t_wordPos := ( others => ( others => '0' ) );
+signal regOptionalBend: t_wordBend := ( others => ( others => '0' ) );
 attribute keep of ipbus: signal is "true";
-
-signal ramA: t_ramA := init_ramA( id );
-signal ramB: t_ramB := init_ramB( id );
-signal ramC: t_ramC := init_ramC( id );
-signal addrA: std_logic_vector( widthCol - 1 downto 0 ) := ( others => '0' );
-signal addrB: std_logic_vector( widthCol + widthRowB - 1 downto 0 ) := ( others => '0' );
-signal addrC: std_logic_vector( widthRowC + widthBendCIC - 1 downto 0 ) := ( others => '0' );
-signal regA: std_logic_vector( widthZ - 1 downto 0 ) := ( others => '0' );
-signal regB: std_logic_vector( widthR + widthPhiDTC + widthSectorEta + widthSectorEta - 1 downto 0 ) := ( others => '0' );
-signal regC: std_logic_vector( widthMBin + widthMBin + numOverlap - 1 downto 0 ) := ( others => '0' );
-attribute ram_style of ramB, ramC: signal is "block";
-attribute ram_style of ramA: signal is "distributed";
+attribute ram_style of ramPos, ramBend: signal is "block";
 
 -- step 2
 
+signal regPos: t_wordPos := ( others => ( others => '0' ) );
+signal regBend: t_wordBend := ( others => ( others => '0' ) );
+
+-- step 3
+
+signal sr: t_sr( 4 - 1 downto 0 ) := ( others => ( others => ( others => '0' ) ) );
+
+signal dspPhi: t_dspPhi := ( others => ( others => '0' ) );
+signal dspPhiTmin, dspPhiTmax: t_dspPhiT := ( others => ( others => '0' ) );
+attribute use_dsp of dspPhi, dspPhiTmin, dspPhiTmax: signal is "yes";
+
+-- step 4
+
+-- step 5
+
+signal phi: std_logic_vector( widthPhiDTC - 1 downto 0 ) := ( others => '0' );
+signal phis: t_phis( 2 - 1 downto 0 ) := ( others => ( others => '0' ) );
+
+-- step 6
+
+-- step 7
+
+signal layer: std_logic_vector( work.config.widthLayer - 1 downto 0 ) := layers( id );
 signal dout: t_stubTransform := nullStub;
 
 
 begin
 
-
 -- step 1
 ipbus <= node_ipbus;
 din <= node_din;
-addrA <= din.col;
-addrB <= din.col & din.row( widthRow - 1 downto widthRow - widthRowB );
-addrC <= din.row( widthRow - 1 downto widthRow - widthRowC ) & din.bend;
 
---step 2
+-- step 5
+phi <= dspPhi.y( baseDiffPhiM + 2 + widthPhiDTC - 1 downto baseDiffPhiM + 2 );
+
+--step 7
 node_dout <= dout;
 
 
@@ -121,44 +140,87 @@ if rising_edge( clk ) then
 
     -- step 1
 
-    reset <= din.reset;
-    valid <= din.valid;
-    bx <= din.bx;
-    regA <= ramA( uint( addrA ) );
-    regB <= ramB( uint( addrB ) );
-    regC <= ramC( uint( addrC ) );
+    reset <= reset( reset'high - 1 downto 0 ) & din.reset;
+    valid <= valid( valid'high - 1 downto 0 ) & din.valid;
+    bx <= bx( bx'high - 1 downto 0 ) & din.bx;
+    row <= row( row'high - 1 downto 0 ) & din.row( baseDiffPhiM - 1 downto 0 );
+    regOptionalPos <= conv_pos( ramPos( uint( din.col & din.row( widthRow - 1 downto widthRow - widthRowLUT ) ) ) );
+    regOptionalbend <= conv_bend( ramBend( uint( din.col & din.bend ) ) );
 
     -- step 2
 
+    regPos <= regOptionalPos;
+    regBend <= regOptionalBend;
+
+    -- step 3
+
+    sr <= sr( sr'high - 1 downto 0 ) & conv( regPos, regBend );
+
+    dspPhi.d <= '0' & stdu( 2 ** ( baseDiffPhiM - 1 ), baseDiffPhiM ) & '0';
+    dspPhi.x <= '0' & row( row'high ) & '0';
+    dspPhi.c <= resize( regPos.phiC & "10" & ( baseDiffPhiM - 1 downto 0 => '0' ), widthDSPPhi - 1 );
+    dspPhi.m <= '0' & regPos.phiM & '1';
+
+    dspPhiTmin.x0 <= regPos.r & '1';
+    dspPhitmin.m0 <= regBend.mMin & '1';
+
+    dspPhiTmax.x0 <= regPos.r & '1';
+    dspPhitmax.m0 <= regBend.mMax & '1';
+
+    -- step 4
+
+    dspPhi.y <= ( dspPhi.x - dspPhi.d ) * dspPhi.m + dspPhi.c;
+
+    dspPhiTmin.x1 <= dspPhiTmin.x0;
+    dspPhiTmin.m1 <= dspPhiTmin.m0;
+
+    dspPhiTmax.x1 <= dspPhiTmax.x0;
+    dspPhiTmax.m1 <= dspPhiTmax.m0;
+
+    -- step 5
+
+    phis <= phis( phis'high - 1 downto 0 ) & phi;
+
+    dspPhiTmin.xm <= dspPhiTmin.x1 * dspPhiTmin.m1;
+    dspPhiTmin.c <= phi & '1' & ( baseDiffPhiDTC - 1 downto 0 => '0' ) & '0';
+
+    dspPhiTmax.xm <= dspPhiTmax.x1 * dspPhiTmax.m1;
+    dspPhiTmax.c <= phi & '1' & ( baseDiffPhiDTC - 1 downto 0 => '0' ) & '0';
+
+    -- step 6
+
+    dspPhiTmin.y <= dspPhiTmin.c + dspPhiTmin.xm;
+    dspPhiTmax.y <= dspPhiTmax.c + dspPhiTmax.xm;
+
+    -- step 7
+
     dout <= nullStub;
-    if valid = '1' then
+    if valid( valid'high ) = '1' then
         dout.valid  <= '1';
-        dout.z      <= regA;
-        dout.r      <= regB( widthR + widthPhiDTC + widthSectorEta + widthSectorEta - 1 downto widthPhiDTC + widthSectorEta + widthSectorEta );
-        dout.phi    <= regB(          widthPhiDTC + widthSectorEta + widthSectorEta - 1 downto               widthSectorEta + widthSectorEta );
-        dout.etaMin <= regB(                        widthSectorEta + widthSectorEta - 1 downto                                widthSectorEta );
-        dout.etaMax <= regB(                                         widthSectorEta - 1 downto                                             0 );
-        dout.mMin   <= regC( widthMBin + widthMBin + numOverlap - 1 downto widthMBin + numOverlap );
-        dout.mMax   <= regC(             widthMBin + numOverlap - 1 downto             numOverlap );
-        dout.nonant <= regC(                         numOverlap - 1 downto                      0 );
-        dout.bx     <= bx;
+        dout.z      <= sr( sr'high ).z;
+        dout.r      <= sr( sr'high ).r;
+        dout.etaMin <= sr( sr'high ).etaMin;
+        dout.etaMax <= sr( sr'high ).etaMax;
+        dout.mMin   <= sr( sr'high ).mMin;
+        dout.mMax   <= sr( sr'high ).mMax;
+        dout.phi    <= phis( phis'high );
+        dout.nonant <= to_nonant( dspPhiTmin.y, dspPhiTmax.y );
+        dout.bx     <= bx( bx'high );
         dout.layer  <= layer;
     end if;
-    if reset = '1' then
+    if reset( reset'high ) = '1' then
         dout.reset <= '1';
     end if;
-    dout.bx( widthBX - 1 downto widthTMPfe ) <= bx( widthBX - 1 downto widthTMPfe );
+    dout.reset <= reset( reset'high );
+    dout.bx( widthBX - 1 downto widthTMPfe ) <= bx( bx'high )( widthBX - 1 downto widthTMPfe );
 
     -- ipbus
 
-    if ipbus.enA = '1' then
-        ramA( uint( ipbus.addrA ) ) <= ipbus.wordA;
+    if ipbus.enPos = '1' then
+        ramPos( uint( ipbus.addrPos ) ) <= ipbus.wordPos;
     end if;
-    if ipbus.enB = '1' then
-        ramB( uint( ipbus.addrB ) ) <= ipbus.wordB;
-    end if;
-    if ipbus.enC = '1' then
-        ramC( uint( ipbus.addrC ) ) <= ipbus.wordC;
+    if ipbus.enBend = '1' then
+        ramBend( uint( ipbus.addrBend ) ) <= ipbus.wordBend;
     end if;
     if ipbus.enLayer = '1' then
         layer <= ipbus.layer;
