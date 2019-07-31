@@ -63,7 +63,7 @@ begin
         signal pos_lut_out : std_logic_vector(53 downto 0) := (others => '0');
     begin
         -- Concatenate stub ID and stub strip to form 11 bit address
-        address(7 downto 0) <= std_logic_vector(to_unsigned(link_number(i), 5)) & std_logic_vector(StubPipeIn(0)(i).payload.row(10 downto 8)); -- Highest 3 bits are assumed to be the FE ID - No idea if this is correct as I didn't make the specifications
+        address(7 downto 0) <= std_logic_vector(to_unsigned(link_number(i), 5)) & std_logic_vector(StubPipeIn(0)(i).payload.fe_module); -- Highest 3 bits are assumed to be the FE ID - No idea if this is correct as I didn't make the specifications
 
         gPromClocked : for j in 0 to 2 generate
             PosLutInstance0 : ENTITY work.GenPromClocked
@@ -91,7 +91,7 @@ begin
                 tmp_buff.valid <= StubPipeIn(0)(i).payload.valid;
                 tmp_buff.bx <= (StubPipeIn(0)(i).header.boxcar_number(4 downto 0) + StubPipeIn(0)(i).payload.bx(2 downto 0)) mod 18;
                 tmp_buff.bend <= StubPipeIn(0)(i).payload.bend;
-                tmp_buff.strip <= StubPipeIn(0)(i).payload.row(7 downto 0);
+                tmp_buff.strip <= StubPipeIn(0)(i).payload.strip;
                 tmp_buff.column <= StubPipeIn(0)(i).payload.column;
             end if;
         end process;
@@ -113,14 +113,16 @@ begin
                     StubArray(i).intrinsic.crossterm <= xy;
 
                     -- Require LUT
-                    StubArray(i).header.nonant <= pos_lut_out(1 downto 0);
-                    StubArray(i).payload.r <= to_integer(unsigned(pos_lut_out(13 downto 2)));
-                    StubArray(i).payload.z <= to_integer(signed(pos_lut_out(25 downto 14)));
-                    StubArray(i).payload.phi <= to_integer(signed(pos_lut_out(42 downto 26)));
-                    StubArray(i).payload.alpha <= signed(pos_lut_out(45 downto 42));
-                    StubArray(i).payload.layer <= unsigned(pos_lut_out(47 downto 46));
-                    StubArray(i).payload.barrel <= pos_lut_out(48);
-                    StubArray(i).payload.module <= pos_lut_out(49);
+
+                    StubArray(i).payload.r <= to_integer(unsigned(pos_lut_out(11 downto 0)));
+                    StubArray(i).payload.z <= to_integer(signed(pos_lut_out(23 downto 12)));
+                    StubArray(i).payload.phi <= to_integer(signed(pos_lut_out(40 downto 24)));
+                    StubArray(i).payload.alpha <= signed(pos_lut_out(44 downto 41));
+                    StubArray(i).payload.layer <= unsigned(pos_lut_out(46 downto 45));
+                    StubArray(i).payload.barrel <= pos_lut_out(47);
+                    StubArray(i).payload.module <= pos_lut_out(48);
+
+                    StubArray(i).header.nonant <= pos_lut_out(50 downto 49);
 
                 else
                     StubArray(i) <= NullStub;
@@ -131,7 +133,7 @@ begin
         pPreMultiplication : process(clk)
         begin
             if rising_edge(clk) then
-                xy <= to_integer(StubPipeIn(0)(i).payload.row(7 downto 0)) * to_integer(StubPipeIn(0)(i).payload.column);
+                xy <= to_integer(StubPipeIn(0)(i).payload.strip) * to_integer(StubPipeIn(0)(i).payload.column);
             end if;
         end process;
 

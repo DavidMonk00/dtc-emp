@@ -56,7 +56,6 @@ architecture Behavioral of CoordinateCorrector2 is
 begin
 
     gCoordinateCorrector : for i in 0 to link_count*stubs_per_word - 1 generate
-        signal multiplied_matrix : tCorrectionMatrix := NullCorrectionMatrix;
         signal vector, vector_buff, vector_buff_second : tCoordVector := (others => 0);
     begin
 
@@ -79,7 +78,7 @@ begin
                 vector_buff_second.xz <= vector_buff.xz;
                 vector_buff_second.r_1 <= vector_buff.r_1 + vector_buff.r_2;
 
-                vector.r_1 <= StubPipeIn(initial_offset + 3)(i).payload.r + vector_buff_second.r_1;
+                vector.r_1 <= StubPipeIn(initial_offset + 2)(i).payload.r + vector_buff_second.r_1;
                 vector.z <= vector_buff_second.z;
                 vector.phi <= vector_buff_second.phi + vector_buff_second.xz;
             end if;

@@ -56,10 +56,11 @@ begin
                             StubArray(i * stubs_per_word + j).header.stub_count     <= StubArray(i * stubs_per_word + j).header.stub_count;
 
                             StubArray(i * stubs_per_word + j).payload.valid         <= LinksIn(i).valid;
-                            StubArray(i * stubs_per_word + j).payload.bx            <= unsigned(LinksIn(i).data(63 - (j * stub_width + 1) downto 63 - (j * stub_width + 7)));
-                            StubArray(i * stubs_per_word + j).payload.row           <= signed(LinksIn(i).data(63 - (j * stub_width + 8) downto 63 - (j * stub_width + 18)));
-                            StubArray(i * stubs_per_word + j).payload.column        <= signed(LinksIn(i).data(63 - (j * stub_width + 19) downto 63 - (j * stub_width + 23)));
-                            StubArray(i * stubs_per_word + j).payload.bend          <= signed(LinksIn(i).data(63 - (j * stub_width + 24) downto 63 - (j * stub_width + 27)));
+                            StubArray(i * stubs_per_word + j).payload.bx            <= unsigned(LinksIn(i).data(63 - (j * stub_width + 0) downto 63 - (j * stub_width + 6)));
+                            StubArray(i * stubs_per_word + j).payload.fe_module     <= unsigned(LinksIn(i).data(63 - (j * stub_width + 7) downto 63 - (j * stub_width + 9)));
+                            StubArray(i * stubs_per_word + j).payload.strip         <= signed(LinksIn(i).data(63 - (j * stub_width + 10) downto 63 - (j * stub_width + 17)));
+                            StubArray(i * stubs_per_word + j).payload.column        <= signed(LinksIn(i).data(63 - (j * stub_width + 18) downto 63 - (j * stub_width + 22)));
+                            StubArray(i * stubs_per_word + j).payload.bend          <= signed(LinksIn(i).data(63 - (j * stub_width + 23) downto 63 - (j * stub_width + 26)));
 
                     end if;
                 end if;

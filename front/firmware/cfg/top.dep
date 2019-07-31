@@ -17,7 +17,12 @@ src StubPipe.vhd
 src algo.vhd
 src utilities.vhd
 
-src ../data/A_PosLutLow_11to18.mif
+src ../data/correction_0.mif
+src ../data/modules_0.mif
+src ../data/modules_2.mif
 src ../data/random_0.mif
 src ../data/random_1.mif
+src ../data/correction_1.mif
 src ../data/random_2.mif
+src ../data/A_PosLutLow_11to18.mif
+src ../data/modules_1.mif

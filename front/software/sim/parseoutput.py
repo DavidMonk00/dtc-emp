@@ -94,11 +94,13 @@ def parseEventFile(file):
 
 def parseListFile(file):
     lines = [line.strip() for line in open(file)]
+    f = open("output.txt", "w")
+    f.write("header,data")
     for i in range(2, len(lines)):
         lines[i] = parse(lines[i])
-        print(
-            hex(lines[i][0][0].data), lines[i][1][1].data, lines[i][1][0].data
-        )
+        f.write("%d,%d\n" % (lines[i][1][3].data, lines[i][1][2].data))
+        f.write("%d,%d\n" % (lines[i][1][1].data, lines[i][1][0].data))
+    f.close()
 
 
 def main():

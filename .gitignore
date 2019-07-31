@@ -1,5 +1,6 @@
 *.lst
 *.log
 *.wlf
+*.qpg
 front/software/c++
 front/software/c++/*
