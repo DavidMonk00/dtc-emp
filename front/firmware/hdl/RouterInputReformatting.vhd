@@ -48,10 +48,12 @@ begin
         begin
             if rising_edge(clk) then
                 WordsOut(2 * i).valid <= StubPipeIn(0)(i).payload.valid;
+                WordsOut(2 * i).strobe <= '1';
                 WordsOut(2 * i).data(4 downto 0) <= std_logic_vector(StubPipeIn(0)(i).header.bx);
                 WordsOut(2 * i).data(6 downto 5) <= std_logic_vector(StubPipeIn(0)(i).header.nonant);
 
                 WordsOut(2 * i + 1).valid <= StubPipeIn(0)(i).payload.valid;
+                WordsOut(2 * i + 1).strobe <= '1';
                 WordsOut(2 * i + 1).data(11 downto 0) <= std_logic_vector(to_unsigned(StubPipeIn(0)(i).payload.r, 12));
                 WordsOut(2 * i + 1).data(23 downto 12) <= std_logic_vector(to_signed(StubPipeIn(0)(i).payload.z, 12));
                 WordsOut(2 * i + 1).data(40 downto 24) <= std_logic_vector(to_signed(StubPipeIn(0)(i).payload.phi, 17));

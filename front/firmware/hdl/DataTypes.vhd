@@ -35,7 +35,7 @@ use work.emp_device_decl.all;
 
 package data_types is
     -- Number of optical links arriving from CICs
-    constant link_count : integer :=  1;
+    constant link_count : integer :=  1;--4 * N_REGION;
 
 
     type tLinksIn is array(integer range 0 to link_count - 1) of std_logic_vector(63 downto 0);
@@ -148,9 +148,9 @@ package data_types is
 
 
     -- LUT for giving the link number as a port for the stub formatter.
-    type tLinkLUT is array (0 to stubs_per_word*link_count - 1) of integer range 0 to stubs_per_word*link_count - 1;
+    type tLinkLUT is array (0 to (stubs_per_word*link_count) - 1) of integer range 0 to stubs_per_word*link_count - 1;
     constant cLinkLUT : tLinkLUT := (
-        0, 1--, 2, 3, 4, 5, 6, 7, 8, 9,
+        0, 1-- 2, 3, 4, 5, 6, 7, 8, 9,
         -- 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
         -- 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
         -- 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,

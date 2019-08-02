@@ -49,6 +49,7 @@ begin
 
                             StubArray(i * stubs_per_word + j).header.boxcar_number <= unsigned(LinksIn(i).data(63 downto 52));
                             StubArray(i * stubs_per_word + j).header.stub_count <= unsigned(LinksIn(i).data(51 downto 46));
+                            -- TODO: GENERATE THESE
                     else
                         -- Conversion to current DTC input word format
 

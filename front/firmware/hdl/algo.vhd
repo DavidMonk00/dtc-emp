@@ -60,9 +60,28 @@ architecture Behavioral of algo is
     -- signal stubs : tStubArray;
     signal matrices : tCorrectionMatrixArray := NullCorrectionMatrixArray;
     signal matrix_bus_out, matrix_bus_in : tFMBusArray;
+    signal sData_out : ldata(4*link_count - 1 downto 0) := (others => LWORD_NULL);
+    signal sData_in : ldata(link_count - 1 downto 0) := (others => LWORD_NULL);
+    signal probe_valid_in, probe_valid_out : std_logic_vector(0 downto 0) := (others => '0');
 
 begin
+    
+    data_out <= sData_out;
+    sData_in <= links_in;
+    
+    probe_valid_in(0) <= sData_in(0).valid;
+    probe_valid_out(0) <= sData_out(0).valid;
+    
 
+
+    ilaInstance : entity work.ila_0
+    PORT MAP (
+        clk => clk,
+        probe0 => sData_in(0).data, 
+	    probe1 => sData_out(0).data,
+	    probe2 => probe_valid_in,
+	    probe3 => probe_valid_out
+    );
 
     LinkFormatterInstance : entity work.LinkFormatter2
     port map (
@@ -103,7 +122,7 @@ begin
     port map (
         clk => clk,
         StubPipeIn => CorrectedStubPipe,
-        WordsOut => data_out
+        WordsOut => sData_out
     );
 
 end Behavioral;

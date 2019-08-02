@@ -12,22 +12,22 @@
 #add wave sim:/testbench/clk
 
 ### LinkFormatter ###
-add wave sim:/testbench/AlgoInstance/CICStubPipe(0)(0)
+add wave sim:/testbench/AlgoInstance/CICStubPipe(0)(1)
 add wave sim:/testbench/AlgoInstance/LinkFormatterInstance/StubArray
 add wave -divider
 
 ### StubFormatter ###
-add wave sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(0)/address
-add wave sim:/testbench/AlgoInstance/StubFormatterInstance/StubPipeIn(0)(0)
-add wave sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(0)/pos_lut_out
-add wave sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(0)/xy
-add wave sim:/testbench/AlgoInstance/StubFormatterInstance/StubArray(0)
+add wave sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(1)/address
+add wave sim:/testbench/AlgoInstance/StubFormatterInstance/StubPipeIn(0)(1)
+add wave sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(1)/pos_lut_out
+add wave sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(1)/xy
+add wave sim:/testbench/AlgoInstance/StubFormatterInstance/StubArray(1)
 add wave -divider
 
 ### GetCorrectionMatrix ###
-add wave sim:/testbench/AlgoInstance/GetCorrectionMatrixInstance/gGetCorrectionMatrix(0)/address
-add wave sim:/testbench/AlgoInstance/GetCorrectionMatrixInstance/gGetCorrectionMatrix(0)/data
-add wave sim:/testbench/AlgoInstance/GetCorrectionMatrixInstance/MatricesOut(0)
+add wave sim:/testbench/AlgoInstance/GetCorrectionMatrixInstance/gGetCorrectionMatrix(1)/address
+add wave sim:/testbench/AlgoInstance/GetCorrectionMatrixInstance/gGetCorrectionMatrix(1)/data
+add wave sim:/testbench/AlgoInstance/GetCorrectionMatrixInstance/MatricesOut(1)
 add wave -divider
 
 ### CoordinateCorrector ###

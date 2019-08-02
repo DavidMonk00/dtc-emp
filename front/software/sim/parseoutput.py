@@ -95,7 +95,7 @@ def parseEventFile(file):
 def parseListFile(file):
     lines = [line.strip() for line in open(file)]
     f = open("output.txt", "w")
-    f.write("header,data")
+    f.write("header,data\n")
     for i in range(2, len(lines)):
         lines[i] = parse(lines[i])
         f.write("%d,%d\n" % (lines[i][1][3].data, lines[i][1][2].data))

@@ -62,12 +62,13 @@ begin
     port map (
         -- Input Ports --
         clk => clk_p,
-        links_in => d,
+        links_in => d(0 downto 0),
 
         -- Output Ports --
-		data_out(N_REGION * 4 - 1 downto 0) => q,
-        data_out(2*2*N_REGION * 4 - 1 downto N_REGION * 4) => open
+		data_out => q(3 downto 0)
     );
+       
+	q(N_REGION*4 - 1 downto 4) <= d(N_REGION*4 - 1 downto 4);
 	bc0 <= '0';
 	gpio <= (others => '0');
 	gpio_en <= (others => '0');
