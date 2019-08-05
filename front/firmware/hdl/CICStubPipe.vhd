@@ -13,7 +13,7 @@ use work.data_types.all;
 ENTITY CICStubPipe IS
   PORT(
     clk      : IN STD_LOGIC               := '0'; --! The algorithm clock
-    CICStubsIn  : IN tCICStubArray := NullCICStubArray;
+    CICStubsIn  : IN tCICStub := NullCICStub;
     CICStubPipe : OUT tCICStubPipe
   );
 END CICStubPipe;
@@ -21,7 +21,7 @@ END CICStubPipe;
 --! @brief Architecture definition for entity CICStubPipe
 --! @details Detailed description
 ARCHITECTURE behavioral OF CICStubPipe IS
-    SIGNAL CICStubPipeInternal : tCICStubPipe( CICStubPipe'RANGE ) := ( OTHERS => NullCICStubArray );
+    SIGNAL CICStubPipeInternal : tCICStubPipe(CICStubPipe'RANGE) := (others => NullCICStub);
 BEGIN
 
   CICStubPipeInternal( 0 ) <= CICStubsIn; -- since the data is clocked out , no need to clock it in as well...

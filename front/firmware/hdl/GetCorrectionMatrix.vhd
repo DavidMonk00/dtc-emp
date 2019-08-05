@@ -32,78 +32,64 @@ use work.utilities_pkg.all;
 
 
 entity GetCorrectionMatrix is
-    Port (
+    generic (
+        index : in integer := 0
+    );
+    port (
         -- Input Ports --
         clk : in std_logic;
         StubPipeIn : in tCICStubPipe;
         bus_in : in tFMBusArray;
 
         -- Output Ports --
-        MatricesOut : out tCorrectionMatrixArray := NullCorrectionMatrixArray;
+        MatrixOut : out tCorrectionMatrix := NullCorrectionMatrix;
         bus_out : out tFMBusArray
     );
 end GetCorrectionMatrix;
 
 architecture Behavioral of GetCorrectionMatrix is
     signal link_number : tLinkLUT := cLinkLUT;
+    type tdata is array(integer range 0 to 1) of std_logic_vector(17 downto 0);
+    signal data_array : tdata := (others => (others => '0'));
+    signal address : std_logic_vector(17 downto 0) := (others => '0');
+    signal data : std_logic_vector(35 downto 0) := (others => '0');
+    signal clk_bus : std_logic := '0';
+
+    -- Constants required for FunkyMiniBus
+    constant x : integer := bus_out'low + index;
+    subtype A is natural range x + 0 to x + 0;
 begin
-    gGetCorrectionMatrix : for i in 0 to link_count*stubs_per_word - 1 generate
-        type tdata is array(integer range 0 to 1) of std_logic_vector(17 downto 0);
-        signal data_array : tdata := (others => (others => '0'));
-        signal address, data_0, data_1 : std_logic_vector(17 downto 0) := (others => '0');
-        signal data : std_logic_vector(35 downto 0) := (others => '0');
-        signal clk_bus : std_logic := '0';
-        signal matrix_buff : tCorrectionMatrix := NullCorrectionMatrix;
+    address(7 downto 0) <= std_logic_vector(to_unsigned(link_number(index), 5)) & std_logic_vector(StubPipeIn(0).payload.fe_module);
+    data <= data_array(1) & data_array(0);
 
-        -- Constants required for FunkyMiniBus
-        constant x : integer := bus_out'low + i;
-        subtype A is natural range x + 0 to x + 0;
-    begin
+    gPromClocked : for j in 0 to 1 generate
+        MatrixLutInstance : ENTITY work.GenPromClocked
+            GENERIC MAP(
+              FileName => "correction_" & INTEGER'IMAGE(j) & ".mif",
+              BusName  => "A/PosLutA" & INTEGER'IMAGE(index)
+            )
+            PORT MAP(
+                -- Input Ports --
+                clk => clk ,
+                AddressIn => address(10 downto 0),
+                BusIn => bus_in(j)(A),
+                BusClk => clk_bus,
 
-        -- Highest 3 bits are assumed to be the FE ID - No idea if this is correct as I didn't make the specifications
-        address(7 downto 0) <= std_logic_vector(to_unsigned(link_number(i), 5)) & std_logic_vector(StubPipeIn(0)(i).payload.fe_module);
-        data <= data_array(1) & data_array(0);
-
-        gPromClocked : for j in 0 to 1 generate
-            MatrixLutInstance : ENTITY work.GenPromClocked
-                GENERIC MAP(
-                  FileName => "correction_" & INTEGER'IMAGE(j) & ".mif",
-                  BusName  => "A/PosLutA" & INTEGER'IMAGE(i)
-                )
-                PORT MAP(
-                    -- Input Ports --
-                    clk => clk ,
-                    AddressIn => address(10 downto 0),
-                    BusIn => bus_in(j)(A),
-                    BusClk => clk_bus,
-
-                    -- Output Ports --
-                    DataOut => data_array(j),
-                    BusOut => bus_out(j)(A)
-                );
-        end generate;
-
-        pBuffer : process(clk)
-        begin
-            if rising_edge(clk) then
-                -- matrix_buff.sintheta <= to_integer(signed(data(5 downto 0)));
-                -- matrix_buff.sinbeta <= to_integer(signed(data(11 downto 6)));
-                -- matrix_buff.rinv <= to_integer(signed(data(17 downto 12)));
-                -- matrix_buff.sinbeta_rsquared <= to_integer(signed(data(23 downto 18)));
-                -- matrix_buff.cosbeta <= to_integer(signed(data(29 downto 24)));
-                --
-                -- MatricesOut(i) <= matrix_buff;
-
-                MatricesOut(i).sintheta <= to_integer(signed(data(5 downto 0)));
-                MatricesOut(i).sinbeta <= to_integer(signed(data(11 downto 6)));
-                MatricesOut(i).rinv <= to_integer(signed(data(17 downto 12)));
-                MatricesOut(i).sinbeta_rsquared <= to_integer(signed(data(23 downto 18)));
-                MatricesOut(i).cosbeta <= to_integer(signed(data(29 downto 24)));
-            end if;
-        end process;
-
-
-
+                -- Output Ports --
+                DataOut => data_array(j),
+                BusOut => bus_out(j)(A)
+            );
     end generate;
+
+    pBuffer : process(clk)
+    begin
+        if rising_edge(clk) then
+            MatrixOut.sintheta <= to_integer(signed(data(5 downto 0)));
+            MatrixOut.sinbeta <= to_integer(signed(data(11 downto 6)));
+            MatrixOut.rinv <= to_integer(signed(data(17 downto 12)));
+            MatrixOut.sinbeta_rsquared <= to_integer(signed(data(23 downto 18)));
+            MatrixOut.cosbeta <= to_integer(signed(data(29 downto 24)));
+        end if;
+    end process;
 
 end Behavioral;

@@ -13,7 +13,7 @@ use work.data_types.all;
 ENTITY StubPipe IS
   PORT(
     clk      : IN STD_LOGIC               := '0'; --! The algorithm clock
-    StubsIn  : IN tStubArray := NullStubArray;
+    StubsIn  : IN tStub := NullStub;
     StubPipe : OUT tStubPipe
   );
 END StubPipe;
@@ -21,7 +21,7 @@ END StubPipe;
 --! @brief Architecture definition for entity StubPipe
 --! @details Detailed description
 ARCHITECTURE behavioral OF StubPipe IS
-    SIGNAL StubPipeInternal : tStubPipe( stubPipe'RANGE ) := ( OTHERS => NullStubArray );
+    SIGNAL StubPipeInternal : tStubPipe( stubPipe'RANGE ) := (others => NullStub);
 BEGIN
 
   StubPipeInternal( 0 ) <= StubsIn; -- since the data is clocked out , no need to clock it in as well...

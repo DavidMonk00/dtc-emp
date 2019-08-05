@@ -37,6 +37,8 @@ package data_types is
     -- Number of optical links arriving from CICs
     constant link_count : integer :=  1;--4 * N_REGION;
 
+    constant pipe_depth : integer := 10;
+
 
     type tLinksIn is array(integer range 0 to link_count - 1) of std_logic_vector(63 downto 0);
     constant NullLinksIn : tLinksIn := (others => (others => '0'));
@@ -61,8 +63,8 @@ package data_types is
     type tCICPayload is record
         valid       : std_logic;
         bx          : unsigned(6 downto 0);
-        strip       : signed(7 downto 0);
         fe_module   : unsigned(2 downto 0);
+        strip       : signed(7 downto 0);
         column      : signed(4 downto 0);
         bend        : signed(3 downto 0);
     end record;
@@ -79,14 +81,11 @@ package data_types is
     end record;
     constant NullCICStub : tCICStub := (NullCICHeader, NullCICPayload);
 
-    type tUnconstrainedCICStubArray is array(integer range <>) of tCICStub;
-    subtype tCICWordStubArray is tUnconstrainedCICStubArray(0 to stubs_per_word - 1);
-    constant NullCICWordStubArray : tCICWordStubArray := (others => NullCICStub);
-    subtype tCICStubArray is tUnconstrainedCICStubArray(0 to link_count*stubs_per_word - 1);
-    constant NullCICStubArray : tCICStubArray := (others => NullCICStub);
+    type tCICStubPipe is array( natural range <> ) of tCICStub;
 
+    type tUnconstrainedCICStubPipeArray is array(integer range <>) of tCICStubPipe(0 to pipe_depth);
+    subtype tCICStubPipeArray is tUnconstrainedCICStubPipeArray(0 to link_count*stubs_per_word - 1);
 
-    type tCICStubPipe is array( natural range <> ) of tCICStubArray;
 
 
     -- Stub format into DTC router, comprises of two lwords, one for header and
@@ -130,12 +129,11 @@ package data_types is
     constant NullStub : tStub := (NullStubHeader, NullStubIntrinsicCoordinates, NullStubPayload);
 
 
-    type tUnconstrainedStubArray is array(integer range <>) of tStub;
-    subtype tStubArray is tUnconstrainedStubArray(0 to link_count*stubs_per_word - 1);
-    constant NullStubArray : tStubArray := (others => NullStub);
+    type tStubPipe is array( natural range <> ) of tStub;
+    type tUnconstrainedStubPipeArray is array(integer range <>) of tStubPipe(0 to pipe_depth);
+    subtype tStubPipeArray is tUnconstrainedStubPipeArray(0 to link_count*stubs_per_word - 1);
 
-    type tStubPipe is array( natural range <> ) of tStubArray;
-
+    
     -- Array for buffering non-LUT data for the module lookup.
     type tNonLUTBuf is record
         valid   : std_logic;

@@ -11,57 +11,27 @@
 ### General Simulation ###
 #add wave sim:/testbench/clk
 
+
 ### LinkFormatter ###
-add wave sim:/testbench/AlgoInstance/CICStubPipe(0)(1)
-add wave sim:/testbench/AlgoInstance/LinkFormatterInstance/StubArray
-add wave -divider
+add wave -divider LinkFormatter
+add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/LinkDataUnpackerInstance/framing_counter
+add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/LinkDataUnpackerInstance/data_in
+add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/LinkDataUnpackerInstance/stub_out(0)
 
 ### StubFormatter ###
-add wave sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(1)/address
-add wave sim:/testbench/AlgoInstance/StubFormatterInstance/StubPipeIn(0)(1)
-add wave sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(1)/pos_lut_out
-add wave sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(1)/xy
-add wave sim:/testbench/AlgoInstance/StubFormatterInstance/StubArray(1)
-add wave -divider
-
-### GetCorrectionMatrix ###
-add wave sim:/testbench/AlgoInstance/GetCorrectionMatrixInstance/gGetCorrectionMatrix(1)/address
-add wave sim:/testbench/AlgoInstance/GetCorrectionMatrixInstance/gGetCorrectionMatrix(1)/data
-add wave sim:/testbench/AlgoInstance/GetCorrectionMatrixInstance/MatricesOut(1)
-add wave -divider
+add wave -divider StubFormatter
+add wave -radix unsigned sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/StubFormatterInstance/address
+add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/StubFormatterInstance/pos_lut_out
+add wave -radix decimal sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/StubFormatterInstance/xy
+add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/StubFormatterInstance/StubPipeOut(0)
 
 ### CoordinateCorrector ###
-add wave sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeIn(0)(0)
-add wave -radix decimal sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/MatricesIn(0)
-add wave sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubArray(0)
-add wave -divider
-add wave -radix decimal sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeIn(0)(0).payload.r
-add wave -radix decimal sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector_buff.r_1
-add wave -radix decimal sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector_buff.r_2
-add wave -radix decimal sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector_buff_second.r_1
-add wave -radix decimal sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector.r_1
-add wave -divider
-add wave -radix decimal sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeIn(0)(0).payload.z
-add wave -radix decimal sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector_buff.z
-add wave -radix decimal sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector_buff_second.z
-add wave -radix decimal sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector.z
-add wave -divider
+add wave -divider CoordinateCorrector
+add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/CoordinateCorrectorInstance/StubPipeIn(0)
+add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/CoordinateCorrectorInstance/MatrixIn
+add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/CoordinateCorrectorInstance/StubPipeOut(0)
 
-#add wave sim:/testbench/AlgoInstance/FormattedStubPipe(0)(0)
-#add wave sim:/testbench/AlgoInstance/CorrectedStubPipe(0)(0)
-add wave -divider
-
-### CoordinateCorrector ###
-#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeIn(0)(0).intrinsic
-#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/MatricesIn(0)
-#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector_buff.phi
-#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeIn(3)(0).payload.phi
-#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/gCoordinateCorrector(0)/vector.phi
-#add wave -position insertpoint sim:/testbench/AlgoInstance/CoordinateCorrectorInstance/StubPipeOut(0)(0)
-#add wave -divider
-#add wave -radix decimal -position insertpoint sim:/testbench/AlgoInstance/StubFormatterInstance/gStubFormatter(0)/xy
-
-#add wave -divider
-
-add wave -position insertpoint sim:/testbench/links_in
-add wave -position insertpoint sim:/testbench/links_out
+### RouterInputReformatting ###
+add wave -divider RouterInputReformatting
+add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/RouterInputReformattingInstance/StubPipeIn(0)
+add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/RouterInputReformattingInstance/WordsOut

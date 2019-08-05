@@ -9,16 +9,16 @@ use work.data_types.all;
 use work.emp_data_types.all;
 
 
-entity LinkFormatter2 is
+entity LinkFormatter is
     port (
         clk : in std_logic;
-        LinksIn : in ldata;
-        StubPipeOut : out tCICStubPipe
+        link_in : in lword;
+        StubPipeOut : out tCICStubPipeArray
     );
-end LinkFormatter2;
+end LinkFormatter;
 
 
-architecture Behavioral of LinkFormatter2 is
+architecture Behavioral of LinkFormatter is
 
     signal StubArray : tCICStubArray := NullCICStubArray;
     signal counter : integer range 0 to (frames - 1) := (frames - 1);
