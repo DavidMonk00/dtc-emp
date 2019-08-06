@@ -46,20 +46,7 @@ architecture rtl of emp_payload is
 
 begin
 	ipb_out <= IPB_RBUS_NULL;
---    gen: for i in N_REGION*4 - 1 downto 0 generate
---	begin
---          dr(i).data <= std_logic_vector(unsigned(d(i).data) + to_unsigned(5,LWORD_WIDTH));
---          dr(i).valid <= d(i).valid;
---          dr(i).start <= d(i).start;
---          dr(i).strobe <= d(i).strobe;
---	end generate;
---        process(clk_p) -- Mother of all shift registers
---        begin
---          if rising_edge(clk_p) then
---            payload_shiftreg <= payload_shiftreg(PAYLOAD_LATENCY-1 downto 0) & dr;
---          end if;
---        end process;
---    q <= payload_shiftreg(PAYLOAD_LATENCY);
+
 	gLinkConverters : for i in 0 to link_count - 1 generate
 		LinkConverterInstance : entity work.LinkConverter
 		generic map (
