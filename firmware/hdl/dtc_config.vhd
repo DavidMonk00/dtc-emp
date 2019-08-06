@@ -212,9 +212,9 @@ begin
                 phiM := ( phi1 - phi0 ) * 2.0 ** ( -baseDiffPhiM );
                 x := ( real( srow ) + 0.5 ) * 2.0 ** baseDiffPhiM * baseRow * m.pitchRow;
                 r := sqrt( d ** 2 + x ** 2 );
-                rT:= r - chosenRofPhi;
+                rT:= r - critR;
                 cot := z / r;
-                cotRes := beamWindowZ / chosenRofZ * abs( 1.0 - chosenRofZ / r );
+                cotRes := beamWindowZ / critR * abs( 1.0 - critR / r );
                 cotMin := cot - cotRes;
                 cotMax := cot + cotRes;
                 ram( ucol * 2 ** widthRowLUT + urow ) := stds( z / baseZ, widthZ ) & stds( rT / baseR, widthR ) &  stds( phiM / basePhiM, widthPhiM ) & stds( phiC / basePhi, widthPhiDTC ) & to_sector( cotMin ) & to_sector( cotMax );

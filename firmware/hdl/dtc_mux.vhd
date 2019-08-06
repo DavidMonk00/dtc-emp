@@ -267,9 +267,9 @@ begin
     stub.etaMax := s(                                                                          widthSectorEta + widthLayer - 1 downto                                                                                  widthLayer );
     stub.layer  := s(                                                                                           widthLayer - 1 downto                                                                                           0 );
     if k = 0 then
-        stub.phi := std_logic_vector( signed( stub.phi ) - 2 ** ( widthPhiDTC - 2 ) );
-    else
         stub.phi := std_logic_vector( signed( stub.phi ) + 2 ** ( widthPhiDTC - 2 ) );
+    else
+        stub.phi := std_logic_vector( signed( stub.phi ) - 2 ** ( widthPhiDTC - 2 ) );
     end if;
     return stub;
 end function;
