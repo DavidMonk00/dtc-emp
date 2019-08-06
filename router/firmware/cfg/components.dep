@@ -1,0 +1,8 @@
+src dtc_mux.vhd
+src dtc_route.vhd
+src dtc_interface.vhd
+#src dtc_transform.vhd
+src dtc_format.vhd
+
+src dtc_config.vhd
+src dtc_stubs.vhd

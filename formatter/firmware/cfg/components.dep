@@ -1,0 +1,18 @@
+src LinkConverter.vhd
+src CoordinateCorrector2.vhd
+src LinkDataUnpacker.vhd
+src CICStubPipe.vhd
+src GetCorrectionMatrix.vhd
+src RouterInputReformatting.vhd
+src StubFormatter.vhd
+src GenPromClocked.vhd
+src StubPipe.vhd
+src DataTypes.vhd
+src FunkyMiniBus.vhd
+src utilities.vhd
+
+src ../data/correction_0.mif
+src ../data/modules_0.mif
+src ../data/modules_2.mif
+src ../data/correction_1.mif
+src ../data/modules_1.mif

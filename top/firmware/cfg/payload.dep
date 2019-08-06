@@ -1,0 +1,7 @@
+src dtc_top.vhd
+src emp_payload.vhd 
+
+include -c dtc:router components.dep
+include -c dtc:formatter components.dep
+
+include -c l1tf:common components.dep
