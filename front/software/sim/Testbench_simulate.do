@@ -20,8 +20,8 @@ view signals
 do {Testbench.udo}
 
 
-#add list  sim:/testbench/links_in
-#add list  sim:/testbench/links_out
+add list  sim:/testbench/links_in
+add list  sim:/testbench/links_out
 run 2000ns
-#write list /home/dmonk/Firmware/dtc-fw/src/dtc-front/front/software/sim/list2.lst
-#quit
+write list /home/dmonk/Firmware/dtc-fw/src/dtc-front/front/software/sim/list2.lst
+quit

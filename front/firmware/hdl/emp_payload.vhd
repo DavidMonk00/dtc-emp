@@ -15,6 +15,8 @@ use work.top_decl.all;
 use work.emp_device_decl.all;
 use work.mp7_ttc_decl.all;
 
+use work.data_types.all;
+
 entity emp_payload is
 	port(
 		clk: in std_logic; -- ipbus signals
@@ -58,17 +60,18 @@ begin
 --          end if;
 --        end process;
 --    q <= payload_shiftreg(PAYLOAD_LATENCY);
-    algoInstance : entity work.algo
-    port map (
-        -- Input Ports --
-        clk => clk_p,
-        links_in => d(0 downto 0),
+	gLinkConverters : for i in 0 to link_count - 1 generate
+		LinkConverterInstance : entity work.LinkConverter
+		generic map (
+		   index => i
+		)
+		PORT MAP(
+			clk => clk,
+			link_in => d(i),
+			data_out => q(2*stubs_per_word*(i+1) - 1 downto 2*stubs_per_word*i)
+		);
+	end generate;
 
-        -- Output Ports --
-		data_out => q(3 downto 0)
-    );
-       
-	q(N_REGION*4 - 1 downto 4) <= d(N_REGION*4 - 1 downto 4);
 	bc0 <= '0';
 	gpio <= (others => '0');
 	gpio_en <= (others => '0');

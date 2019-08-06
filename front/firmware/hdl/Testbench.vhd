@@ -12,7 +12,7 @@ architecture Behavioral of Testbench is
     signal clk : std_logic := '0';
     signal counter : integer := 0; -- Counter to more easily calculate latency
     signal links_in : ldata(link_count - 1 downto 0) := (others => LWORD_NULL); -- Input word for CIC
-    signal links_out : ldata(4*link_count - 1 downto 0) := (others => LWORD_NULL);
+    signal links_out : ldata(2* stubs_per_word*link_count - 1 downto 0) := (others => LWORD_NULL);
 
 begin
 
@@ -34,13 +34,16 @@ begin
             clk => clk,
             links_out => links_in(i)
          );
-    end generate;
 
-    AlgoInstance : entity work.algo
-    PORT MAP(
-        clk => clk,
-        links_in => links_in,
-        data_out => links_out
-    );
+         LinkConverterInstance : entity work.LinkConverter
+         generic map (
+            index => i
+         )
+         PORT MAP(
+             clk => clk,
+             link_in => links_in(i),
+             data_out => links_out(2*stubs_per_word*(i+1) - 1 downto 2*stubs_per_word*i)
+         );
+    end generate;
 
 end Behavioral;

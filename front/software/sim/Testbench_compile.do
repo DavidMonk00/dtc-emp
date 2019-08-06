@@ -39,7 +39,7 @@ vcom -64 -93 -work xil_defaultlib  \
 "../../firmware/hdl/RouterInputReformatting.vhd" \
 "../../firmware/hdl/GetCorrectionMatrix.vhd" \
 "../../firmware/hdl/CoordinateCorrector2.vhd" \
-"../../firmware/hdl/algo.vhd" \
+"../../firmware/hdl/LinkConverter.vhd" \
 "../../firmware/hdl/LinkGenerator.vhd" \
 
 vcom -64 -93 -work xil_defaultlib  \

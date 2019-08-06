@@ -14,24 +14,12 @@
 
 ### LinkFormatter ###
 add wave -divider LinkFormatter
-add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/LinkDataUnpackerInstance/framing_counter
-add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/LinkDataUnpackerInstance/data_in
-add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/LinkDataUnpackerInstance/stub_out(0)
 
 ### StubFormatter ###
 add wave -divider StubFormatter
-add wave -radix unsigned sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/StubFormatterInstance/address
-add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/StubFormatterInstance/pos_lut_out
-add wave -radix decimal sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/StubFormatterInstance/xy
-add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/StubFormatterInstance/StubPipeOut(0)
 
 ### CoordinateCorrector ###
 add wave -divider CoordinateCorrector
-add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/CoordinateCorrectorInstance/StubPipeIn(0)
-add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/CoordinateCorrectorInstance/MatrixIn
-add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/CoordinateCorrectorInstance/StubPipeOut(0)
 
 ### RouterInputReformatting ###
 add wave -divider RouterInputReformatting
-add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/RouterInputReformattingInstance/StubPipeIn(0)
-add wave sim:/testbench/AlgoInstance/gFormatting(0)/gIntraWordFormatting(0)/RouterInputReformattingInstance/WordsOut
